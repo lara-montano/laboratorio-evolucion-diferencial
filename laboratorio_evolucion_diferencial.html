@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laboratorio de Evolución Diferencial · Sesión 36 · v2</title>
+<meta name="lab-version" content="2.0">
+<meta name="description" content="Laboratorio didáctico sin conexión para explorar y comparar F, CR y el tamaño de población en Evolución Diferencial.">
+<style>:root{--ink:#20343a;--muted:#61747a;--teal:#0f4c5c;--teal-light:#e8f0ef;--orange:#ad5429;--orange-light:#faeee5;--paper:#f7f8f5;--border:#dbe3df;--white:#fff;--green:#45684e;--radius:14px;--shadow:0 4px 18px #163d4710}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.5}button,a,input,select,textarea,summary{outline-offset:4px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #bb7628}button{transition:background .15s,border-color .15s}a{color:var(--teal)}[hidden]{display:none!important}.wrap{max-width:1440px;margin:0 auto;padding:0 42px}.masthead{background:var(--teal);color:white}.masthead-inner{display:flex;align-items:center;justify-content:space-between;min-height:72px}.brand{display:flex;align-items:center;gap:13px;font-weight:700;letter-spacing:.03em}.brand-mark{display:grid;place-items:center;width:39px;height:39px;border:1px solid #a1c4c4;border-radius:50%;font-size:14px}.brand-secondary{font-weight:400;color:#c3dcde;margin-left:12px;letter-spacing:0}.session{font-weight:600;font-size:13px}.session span{color:#bfd6d7;font-weight:400;margin-left:12px}.intro{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:36px 0 22px}.eyebrow{font-size:11px;letter-spacing:.15em;color:var(--orange);font-weight:750;margin:0 0 9px}h1{font-size:clamp(24px,2.4vw,34px);line-height:1.18;letter-spacing:-.025em;margin:0 0 12px;font-weight:720}h2{font-size:20px;line-height:1.3;margin:0 0 12px}h3{font-size:16px;margin:0 0 9px;line-height:1.35}.lead{margin:0;color:var(--muted);max-width:740px}.case-select{min-width:245px;font-size:12px;font-weight:650;color:var(--muted)}label select{margin-top:6px}.context-strip{display:flex;gap:18px;align-items:center;justify-content:space-between;padding:13px 17px;background:#e9efea;border-radius:9px;font-size:13px;color:#435f59}.text-button{border:0;background:none;color:var(--teal);font-size:12px;font-weight:650;padding:4px;white-space:nowrap}.text-button:hover{text-decoration:underline}.text-button span{margin-left:6px}.model-details{padding:20px 24px;background:#fff;border:1px solid var(--border);border-top:0;border-radius:0 0 10px 10px;font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:24px}.model-details p{margin:5px 0}.model-details strong{color:var(--teal)}.tabs{display:flex;border-bottom:1px solid var(--border);margin:22px 0 25px;gap:28px}.tab{border:0;border-bottom:3px solid transparent;background:none;color:#7d8c8f;display:flex;gap:9px;padding:13px 2px;font-weight:600;font-size:12px;margin-bottom:-1px}.tab span{font-size:15px}.tab.active{border-bottom-color:var(--teal);color:var(--teal)}.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 16px}.panel-heading h2,.panel-heading h3{font-size:16px;margin:0}.explore-grid{display:grid;grid-template-columns:292px minmax(0,1fr);gap:24px;align-items:start}.controls{padding:22px}.controls .panel-heading{padding-bottom:14px;border-bottom:1px solid var(--border)}.field{margin-bottom:20px}.label-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.label-line label{font-size:13px;font-weight:650}output{color:var(--teal);font-weight:750;font-size:17px;font-variant-numeric:tabular-nums}input[type=range]{width:100%;height:20px;accent-color:var(--teal);margin:0}.hint{font-size:12px;line-height:1.5;color:var(--muted);margin:6px 0 0}.field-small label,.two-fields label{display:block;font-size:12px;font-weight:650}.field-small{margin-bottom:13px}select,input[type=number],textarea{width:100%;border:1px solid #cdd8d3;background:#fff;border-radius:7px;padding:8px 10px;color:var(--ink);min-height:39px}input[type=number]{font-variant-numeric:tabular-nums}select{padding-right:22px}.two-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.two-fields input{margin-top:6px}.budget-note{color:var(--teal);font-size:12px;padding:10px 12px;background:var(--teal-light);border-radius:7px;margin:0 0 16px}.run-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.button{border:1px solid transparent;border-radius:8px;padding:9px 14px;min-height:41px;font-weight:650;font-size:13px}.primary{background:var(--teal);color:white}.primary:hover{background:#173f4a}.secondary{border-color:#c8d8d3;background:#fff;color:var(--teal)}.secondary:hover{background:var(--teal-light)}.ghost{background:#eff3f0;color:var(--teal)}.ghost:hover{background:#e3ebe6}.speed-row{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:12px;color:var(--muted)}.speed-row select{min-height:32px;padding:4px 8px;font-size:12px;max-width:115px}.live-status{font-size:12px;color:var(--muted);margin:14px 0 0;min-height:36px}.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:17px}.metric{padding:13px 16px;border-left:2px solid #cadbd3;background:#eef3ee;border-radius:0 8px 8px 0;min-width:0}.metric .metric-label{display:block;font-size:11px;color:var(--muted);font-weight:650;letter-spacing:.02em}.metric strong{font-size:22px;line-height:1.3;display:block;white-space:nowrap;color:var(--teal);font-variant-numeric:tabular-nums;margin-top:4px}.metric small{display:block;font-size:11px;color:var(--muted);min-height:17px}.map-panel{padding:22px 24px 15px}.generation-badge{font-size:12px;color:var(--teal);background:#edf3f1;padding:3px 9px;border-radius:5px;white-space:nowrap}.map-legend{display:flex;flex-wrap:wrap;gap:22px;font-size:12px;color:var(--muted);margin-top:-5px;margin-bottom:3px}.map-legend span{display:flex;align-items:center;gap:7px}.dot,.best-dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid var(--teal);background:white}.best-dot{border:3px solid var(--orange);width:13px;height:13px}.cross{color:var(--green);font-size:19px;font-weight:800;line-height:13px}.map-holder{position:relative;width:100%;height:315px}canvas{display:block;width:100%;height:100%}.map-tooltip{position:absolute;pointer-events:none;z-index:2;font-size:12px;background:#173f47;color:white;padding:7px 10px;border-radius:6px;box-shadow:var(--shadow);white-space:nowrap}.color-legend{display:flex;align-items:center;justify-content:center;gap:10px;font-size:11px;color:var(--muted);flex-wrap:wrap}.color-legend>div{height:8px;width:140px;border-radius:3px;background:linear-gradient(90deg,#0e5362,#6d9696,#dce2d5,#fff0c7)}.color-legend small{font-size:10px;margin-left:10px}.chart-caption{font-size:11px;color:var(--muted);line-height:1.45;margin:10px 0 0}.convergence-panel{margin-top:17px;padding:18px 24px 15px}.convergence-panel canvas{height:180px}.check{font-size:11px;display:flex;align-items:center;gap:6px;color:var(--muted)}.check input{accent-color:var(--teal)}.operator-panel{margin-top:22px;box-shadow:none;padding:0}.operator-panel summary{cursor:pointer;padding:18px 23px;font-size:14px;font-weight:650;color:var(--teal)}#operator-body{padding:0 23px 22px;font-size:13px}.operator-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:12px}.operator-grid>div{padding-top:12px;border-top:2px solid var(--border)}.operator-grid h3{font-size:13px;color:var(--teal)}.formula{font-family:Georgia,serif;font-size:17px;line-height:1.5;color:var(--ink)}.operator-grid p{margin:5px 0}.accepted{color:var(--green);font-weight:700}.rejected{color:var(--orange);font-weight:700}.explore-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:18px 0 32px}.explore-footer p{font-size:12px;color:var(--muted)}.comparison-intro p{color:var(--muted);max-width:850px;margin:0 0 22px}.comparison-intro h2{font-size:25px}.preset-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 19px}.preset-row>span{font-size:12px;font-weight:650;margin-right:5px}.preset{border:1px solid var(--border);background:#fff;border-radius:30px;font-size:12px;padding:7px 13px;color:var(--muted)}.preset.active{background:var(--teal-light);border-color:#8eb6ad;color:var(--teal)}.compare-configs{display:grid;grid-template-columns:1fr 1fr .88fr;gap:17px}.config-card{border-top:3px solid var(--teal);padding:19px}.config-b{border-top-color:var(--orange)}.config-title{display:flex;gap:12px;align-items:center;margin-bottom:17px}.config-title h3{margin:0}.config-letter{background:var(--teal-light);color:var(--teal);width:30px;height:30px;display:grid;place-items:center;border-radius:6px;font-weight:750}.config-b .config-letter{background:var(--orange-light);color:var(--orange)}.config-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.config-fields label,.compare-setup>label{font-size:12px;font-weight:600;display:block}.config-fields input{margin-top:7px}.compare-setup .two-fields{margin-top:12px}.compare-setup>label input{margin-top:7px}.compare-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:20px 0}.compare-toolbar>span{font-size:12px;color:var(--muted)}.comparison-empty{border:1px dashed #baccc2;border-radius:14px;text-align:center;padding:45px 20px;margin:24px 0;color:var(--muted)}.comparison-empty h3{color:var(--teal);font-size:20px;margin-top:10px}.comparison-empty p{font-size:14px}.empty-symbol{font-size:24px;letter-spacing:.15em;color:#7b9a91}.compare-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:19px;margin:18px 0}.compare-chart-grid canvas{height:240px}.ab-legend{display:flex;gap:15px;font-size:12px}.ab-legend b:first-child{color:var(--teal)}.ab-legend b:last-child{color:var(--orange)}.result-summary{background:#e8f0ea;border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:15px 20px;font-size:14px;line-height:1.55}.result-summary strong{color:var(--teal)}.results-table-wrap{overflow:auto;padding:22px}.results-table-wrap table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}.results-table-wrap caption{text-align:left;font-size:17px;font-weight:650;margin-bottom:15px}.results-table-wrap th,.results-table-wrap td{padding:10px 15px;border-bottom:1px solid var(--border);text-align:right}.results-table-wrap th:first-child,.results-table-wrap td:first-child{text-align:left}.results-table-wrap thead th:nth-child(2){color:var(--teal)}.results-table-wrap thead th:nth-child(3){color:var(--orange)}.results-table-wrap tbody tr:nth-child(odd){background:#f8faf7}.comparison-caveat{font-size:12px;color:var(--muted);margin:20px 0 35px}.activity-header h2{font-size:27px}.activity-header>p:last-child{color:var(--muted);margin-bottom:25px}.activity-grid{display:grid;grid-template-columns:.9fr 1fr;gap:50px}.activity-steps{list-style:none;counter-reset:steps;padding:0;margin:0}.activity-steps li{counter-increment:steps;position:relative;padding:0 0 26px 49px}.activity-steps li:before{content:counter(steps);position:absolute;left:0;top:2px;display:grid;place-items:center;border:1px solid #a3c0b5;border-radius:50%;height:31px;width:31px;font-size:14px;color:var(--teal);font-weight:700}.activity-steps h3{font-size:19px}.activity-steps p{color:var(--muted);font-size:14px;margin:7px 0}.minute{float:right;font-size:12px;color:var(--orange)}.response-sheet label{display:block;font-size:13px;font-weight:600;margin:18px 0 0}.response-sheet textarea{font-size:13px;margin-top:6px;resize:vertical;line-height:1.5}.response-sheet>button{margin-top:15px}.response-sheet #notes-status{font-size:12px;margin-left:10px;color:var(--muted)}.takeaways{border-top:1px solid var(--border);margin-top:30px;padding:25px 0;color:var(--muted)}.takeaways h3{color:var(--teal)}.footer{border-top:1px solid var(--border);padding:24px 0 35px;margin-top:25px;font-size:11px;color:var(--muted)}.footer p{margin:0 0 8px}.footer summary{cursor:pointer;color:var(--teal);margin:11px 0}.footer details p{max-width:1050px;line-height:1.65}.offline-note{padding-top:6px;color:#779088}.error{color:#9a352b!important;font-weight:600}.busy{cursor:progress}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(min-width:1500px){.map-holder{height:340px}}
+@media(max-width:1100px){.wrap{padding:0 24px}.intro{align-items:flex-start}.intro h1{font-size:27px}.case-select{min-width:220px}.explore-grid{grid-template-columns:260px minmax(0,1fr);gap:17px}.metric-row{gap:8px}.metric{padding:11px 10px}.metric strong{font-size:19px}.map-panel{padding:18px}.compare-configs{grid-template-columns:1fr 1fr}.compare-setup{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1.5fr 1.2fr;align-items:start;gap:22px}.compare-setup .two-fields{margin-top:0}.operator-grid{gap:12px}.activity-grid{gap:25px}}
+@media(max-width:780px){.masthead-inner{min-height:60px}.brand-secondary{display:none}.session span{display:none}.intro{display:block;padding-top:24px}.case-select{display:block;margin-top:20px;width:100%}.intro h1{font-size:29px}.context-strip{align-items:flex-start}.tabs{gap:22px}.tab span{font-size:13px}.explore-grid{grid-template-columns:1fr}.controls{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.controls .panel-heading{grid-column:1/-1}.controls .field{margin-bottom:17px}.controls .two-fields,.controls .budget-note,.controls .run-controls,.controls .live-status{grid-column:1/-1}.controls .run-controls{grid-template-columns:repeat(4,1fr)}.controls .speed-row{grid-column:1/-1}.controls .live-status{min-height:0;margin:10px 0 0}.metric-row{grid-template-columns:repeat(4,1fr)}.metric strong{font-size:20px}.map-holder{height:330px}.compare-chart-grid,.activity-grid{grid-template-columns:1fr}.compare-setup{display:block}.compare-setup .two-fields{margin-top:12px}.operator-grid{grid-template-columns:1fr}.model-details{grid-template-columns:1fr;gap:12px}.footer{margin-top:15px}.comparison-intro h2{font-size:23px}.activity-header h2{font-size:25px}}
+@media(max-width:480px){.wrap{padding:0 16px}.intro h1{font-size:27px}.tabs{gap:15px}.tab{gap:5px}.tab span{font-size:12px}.tab{font-size:10px}.context-strip{display:block;font-size:12px}.context-strip button{display:block;margin-top:7px;padding-left:0}.controls{padding:17px;gap:0 14px}.metric-row{grid-template-columns:1fr 1fr}.metric strong{font-size:23px}.panel-heading{align-items:flex-start}.panel-heading h2{max-width:210px}.map-holder{height:280px}.map-panel{padding:17px 12px}.map-legend{gap:11px;font-size:10px}.convergence-panel{padding:17px 12px}.convergence-panel .panel-heading{display:block}.convergence-panel .check{margin-top:10px}.compare-configs{grid-template-columns:1fr}.compare-setup{grid-column:auto}.config-fields{gap:10px}.compare-chart-grid .panel{padding:17px 12px}.run-controls .button{padding:8px 5px;font-size:11px}.explore-footer{display:block}.comparison-intro h2{font-size:22px}.preset{font-size:11px;padding:7px 11px}.results-table-wrap{padding:15px 10px}.results-table-wrap th,.results-table-wrap td{padding:9px 8px;font-size:12px}.result-summary{font-size:13px;padding:13px}.metric small{font-size:10px}.response-sheet{padding:20px}.session{font-size:11px}.controls .field-small label{font-size:11px}.lead{font-size:14px}.brand{font-size:13px}.activity-steps li{padding-left:44px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media print{.masthead,.tabs,.controls,.compare-toolbar,.preset-row,.footer,.explore-footer,.response-sheet button{display:none!important}.wrap{padding:0}body{background:#fff}.panel{box-shadow:none;break-inside:avoid}canvas{max-width:100%}.activity-grid{grid-template-columns:1fr 1fr}.intro{padding:0 0 20px}.case-select{display:none}}
+
+/* Revisión 2: contexto visible, exportación alternativa y lectura en paneles estrechos. */
+.startup-message{margin:18px 0;padding:16px;background:#fff2d9;border:1px solid #dfc491;border-radius:9px;font-size:14px}
+.objective-card{margin:12px 0 0;padding:13px 17px;border:1px solid var(--border);border-radius:9px;background:white}
+.objective-card>p:first-child{margin:0;font-size:14px;font-weight:600;overflow-wrap:anywhere}.model-formula{overflow-wrap:anywhere}
+.design-note{padding:11px 15px;background:var(--teal-light);border-left:3px solid var(--teal);border-radius:0 7px 7px 0;font-size:13px;margin:17px 0 0}
+.comparison-warning{background:#fff2d9;border-color:#b97826;color:#694b20}.config-summary{font-size:12px;color:var(--muted);overflow-wrap:anywhere;padding:10px 0 0}
+.budget-shortcuts{display:flex;gap:7px;margin:9px 0;flex-wrap:wrap}.budget-shortcuts .preset{font-size:11px;padding:5px 8px}
+.compare-setup .budget-shortcuts{grid-column:1}.compare-setup>.two-fields{grid-column:2;grid-row:1}.compare-setup>.hint{grid-column:3;grid-row:1 / span 2}
+.note-case{font-weight:650;color:var(--teal);font-size:13px;margin:8px 0}.legacy-notes{margin:24px 0}.legacy-notes pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.export-preview{margin:24px 0}.export-preview h2{overflow-wrap:anywhere}.export-preview label{display:block;font-size:12px;color:var(--muted)}.export-preview textarea{font:12px/1.5 ui-monospace,Menlo,monospace;resize:vertical;margin:6px 0 12px;white-space:pre;min-height:190px}
+.metric strong{font-size:clamp(14px,1.7vw,22px);overflow-wrap:anywhere;white-space:normal}.metric{min-width:0}.results-table-wrap td{white-space:nowrap}
+@media(min-width:1101px){.compare-setup .budget-shortcuts{grid-column:auto}.compare-setup>.two-fields,.compare-setup>.hint{grid-column:auto;grid-row:auto}}
+@media(max-width:780px){.compare-setup>.two-fields,.compare-setup>.hint{grid-column:auto;grid-row:auto}.objective-card>p:first-child{font-size:13px}.metric strong{font-size:17px}.color-legend small{margin-left:0}.panel-heading{flex-wrap:wrap}}
+@media(max-width:480px){.metric strong{font-size:18px}.tabs{gap:10px}.tab span{font-size:11px}.export-preview{padding:15px}.config-summary{font-size:11px}}
+</style>
+</head>
+<body>
+<header class="masthead"><div class="wrap masthead-inner"><div class="brand"><span class="brand-mark" aria-hidden="true">DE</span><span>UAQ <span class="brand-secondary">Matemáticas Avanzadas</span></span></div><span class="session">Sesión 36 <span>Laboratorio interactivo · v2</span></span></div></header>
+<main class="wrap">
+<div class="startup-message" id="startup-status" role="status">Preparando el laboratorio. Si este mensaje permanece y los controles no responden, abre el archivo HTML en un navegador con JavaScript habilitado.</div>
+<noscript><p class="startup-message">Este laboratorio necesita JavaScript. Abre el archivo en un navegador que permita ejecutarlo.</p></noscript>
+<section class="intro"><div><p class="eyebrow">OPTIMIZACIÓN SIN DERIVADAS</p><h1>¿Qué cambia cuando ajustas el método?</h1><p class="lead">Explora una población. Compara parámetros. Contrasta tu predicción con varias corridas.</p></div><label class="case-select" for="problem">Caso o función objetivo<select id="problem"><option value="solar">Sistema solar con batería</option><option value="terrain">Terreno con cuatro mínimos</option><option value="sphere">Esfera · un mínimo</option><option value="rosenbrock">Rosenbrock · valle estrecho</option><option value="rastrigin">Rastrigin · muchos mínimos</option><option value="ackley">Ackley · pozo central</option></select></label></section>
+<div class="context-strip"><span id="case-summary"></span><button class="text-button" id="context-toggle" aria-expanded="false" aria-controls="case-details">Ver el modelo <span aria-hidden="true">＋</span></button></div>
+<section class="objective-card" aria-label="Función objetivo"><p id="objective-summary"></p><p id="objective-question" class="hint"></p></section>
+<section id="case-details" class="model-details" hidden></section>
+<nav class="tabs" aria-label="Vistas del laboratorio"><button class="tab active" role="tab" id="tab-explore" aria-selected="true" aria-controls="panel-explore" data-tab="explore">01 <span>Explorar</span></button><button class="tab" role="tab" id="tab-compare" aria-selected="false" aria-controls="panel-compare" data-tab="compare">02 <span>Comparar</span></button><button class="tab" role="tab" id="tab-activity" aria-selected="false" aria-controls="panel-activity" data-tab="activity">03 <span>Actividad de clase</span></button></nav>
+<section id="panel-explore" role="tabpanel" aria-labelledby="tab-explore">
+<div class="explore-grid">
+<aside class="controls panel"><div class="panel-heading"><h2>Una corrida</h2><button class="text-button" id="reset-defaults">Restablecer</button></div>
+<div class="field"><div class="label-line"><label for="np">NP · Población</label><output id="np-out" for="np">10</output></div><input id="np" type="range" min="4" max="60" step="1" value="10"><p class="hint">Más individuos, más evaluaciones por generación.</p></div>
+<div class="field"><div class="label-line"><label for="factor">F · Factor diferencial</label><output id="factor-out" for="factor">0.50</output></div><input id="factor" type="range" min="0" max="2" step="0.05" value="0.5"><p class="hint">Escala la diferencia entre dos posiciones. Con F = 0, el mutante es el donante base.</p></div>
+<div class="field"><div class="label-line"><label for="cr">CR · Probabilidad de cruza</label><output id="cr-out" for="cr">0.50</output></div><input id="cr" type="range" min="0" max="1" step="0.05" value="0.5"><p class="hint" id="cr-help">Una coordenada siempre se toma del mutante.</p></div>
+<div class="field field-small"><label for="stop-mode">Criterio de paro</label><select id="stop-mode"><option value="generations">Número de generaciones</option><option value="evaluations">Presupuesto de evaluaciones</option></select></div>
+<div class="two-fields"><div class="field field-small" id="generations-field"><label for="generations">Generaciones</label><input id="generations" type="number" min="1" max="200" value="20"></div><div class="field field-small" id="budget-field" hidden><label for="budget">Evaluaciones</label><input id="budget" type="number" min="4" max="12000" step="1" value="840"></div><div class="field field-small"><label for="seed">Semilla</label><input id="seed" type="number" min="0" max="999999" value="0"></div></div>
+<p class="budget-note" id="budget-note"></p>
+<div class="run-controls"><button id="play" class="button primary">Iniciar</button><button id="step" class="button secondary">Un paso</button><button id="finish" class="button secondary">Completar</button><button id="restart" class="button ghost">Reiniciar</button></div>
+<div class="speed-row"><label for="speed">Ritmo</label><select id="speed"><option value="650">Lento</option><option value="280" selected>Medio</option><option value="80">Rápido</option></select></div>
+<p class="live-status" id="run-status" aria-live="polite">Población inicial lista.</p>
+</aside>
+<div class="visual-stack"><div class="metric-row" id="run-metrics"></div><section class="panel map-panel"><div class="panel-heading"><h2>La población en el espacio de búsqueda</h2><span class="generation-badge" id="generation-label">Generación 0</span></div><div class="map-legend"><span><i class="dot"></i> Individuos</span><span><i class="best-dot"></i> Mejor actual</span><span><b class="cross">＋</b> Referencia</span></div><div class="map-holder"><canvas id="landscape" role="img" aria-label="Mapa de costo con los individuos de la población">El mejor diseño y su costo se muestran en los indicadores.</canvas><div class="map-tooltip" id="map-tooltip" hidden></div></div><div class="color-legend"><span>Menor costo</span><div></div><span>Mayor costo</span><small>Color según log(1 + brecha absoluta)</small></div><p id="map-summary" class="chart-caption"></p></section>
+<section class="panel convergence-panel"><div class="panel-heading"><h2>Progreso de la búsqueda</h2><label class="check"><input type="checkbox" id="compressed" checked> Comprimir la escala vertical</label></div><canvas id="convergence" role="img" aria-label="Brecha respecto a la referencia, frente al número acumulado de evaluaciones"></canvas><p class="chart-caption" id="convergence-caption">La brecha es cero en el mínimo de referencia. El eje horizontal cuenta evaluaciones, incluida la población inicial.</p></section></div>
+</div>
+<details class="operator-panel panel" id="operator"><summary>¿Qué ocurrió en una operación de la última generación?</summary><div id="operator-body"><p>Avanza una generación para inspeccionar la mutación, la cruza y la selección del individuo 1.</p></div></details>
+<div class="explore-footer"><p>Cambiar un parámetro reinicia la corrida con la semilla indicada.</p><button class="button secondary" id="use-in-compare">Usar esta configuración como A</button></div>
+</section>
+<section id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" hidden>
+<div class="comparison-intro"><div><h2>Dos configuraciones, un mismo límite</h2><p>Cambia un parámetro a la vez. Usa varias semillas para distinguir un efecto persistente de una corrida afortunada.</p></div></div>
+<div class="preset-row" aria-label="Experimentos preparados"><span>Comparar:</span><button class="preset active" data-preset="F">F · 0.3 frente a 0.9</button><button class="preset" data-preset="CR">CR · 0 frente a 1</button><button class="preset" data-preset="NP">NP · 8 frente a 40</button></div>
+<div class="compare-configs"><section class="panel config-card config-a"><div class="config-title"><span class="config-letter">A</span><h3>Configuración A</h3></div><div class="config-fields"><label for="a-np">Población NP<input id="a-np" type="number" min="4" max="60" value="20"></label><label for="a-f">Factor F<input id="a-f" type="number" min="0" max="2" step="0.05" value="0.3"></label><label for="a-cr">Cruza CR<input id="a-cr" type="number" min="0" max="1" step="0.05" value="0.7"></label></div><p id="a-budget-note" class="hint"></p></section><section class="panel config-card config-b"><div class="config-title"><span class="config-letter">B</span><h3>Configuración B</h3></div><div class="config-fields"><label for="b-np">Población NP<input id="b-np" type="number" min="4" max="60" value="20"></label><label for="b-f">Factor F<input id="b-f" type="number" min="0" max="2" step="0.05" value="0.9"></label><label for="b-cr">Cruza CR<input id="b-cr" type="number" min="0" max="1" step="0.05" value="0.7"></label></div><p id="b-budget-note" class="hint"></p></section>
+<section class="panel compare-setup"><label for="compare-budget">Límite por corrida<input id="compare-budget" type="number" min="4" max="12000" step="1" value="240"></label><div class="budget-shortcuts"><button type="button" class="preset" id="budget-short">240 · corto</button><button type="button" class="preset" id="budget-long">840 · amplio</button></div><div class="two-fields"><label for="compare-seed">Semilla inicial<input id="compare-seed" type="number" min="0" max="999999" value="0"></label><label for="repetitions">Repeticiones<input id="repetitions" type="number" min="2" max="100" value="30"></label></div><p class="hint">A y B usan la misma lista de semillas. La inicialización coincide si NP también coincide. Empieza con 240 evaluaciones y repite con 840: ¿se conserva la ventaja?</p></section></div>
+<p class="design-note" id="comparison-design-note" aria-live="polite"></p>
+<div class="compare-toolbar"><button id="compare-one" class="button secondary">Comparar una semilla</button><button id="compare-many" class="button primary">Comparar 30 semillas</button><button id="export-csv" class="button ghost" disabled>Descargar resultados CSV</button><span id="compare-status" aria-live="polite"></span></div>
+<div class="comparison-empty" id="compare-empty"><span class="empty-symbol">A / B</span><h3>Primero, una predicción</h3><p>¿Qué configuración esperas que encuentre un mejor diseño?<br>Ejecuta la comparación para ponerlo a prueba.</p></div>
+<div id="compare-results" hidden><p class="config-summary" id="comparison-config-summary"></p><div class="result-summary" id="comparison-summary"></div><div class="compare-chart-grid"><section class="panel"><div class="panel-heading"><h3>Una corrida con la semilla inicial</h3><span class="ab-legend"><b>A</b><b>B</b></span></div><canvas id="comparison-curve" role="img" aria-label="Progreso de A y B frente a evaluaciones para la primera semilla"></canvas><p class="chart-caption">A: línea continua. B: línea discontinua. Estas curvas muestran la primera semilla, al cierre de cada generación. La tabla resume todas las repeticiones.</p></section><section class="panel"><div class="panel-heading"><h3>Brecha final por semilla</h3><span class="ab-legend"><b>A</b><b>B</b></span></div><canvas id="paired-chart" role="img" aria-label="Resultados finales emparejados por semilla"></canvas><p class="chart-caption">Cada par usa la misma semilla. Menor brecha es mejor. Escala log(1 + brecha absoluta). La brecha tiene las unidades de la función; no compares su magnitud entre funciones distintas.</p></section></div><div class="panel results-table-wrap"><table id="results-table"><caption>Resumen de la comparación</caption><thead><tr><th scope="col">Métrica</th><th scope="col">A</th><th scope="col">B</th></tr></thead><tbody></tbody></table><p class="hint" id="success-definition"></p></div><p class="comparison-caveat">Un resultado observado en este modelo y presupuesto no garantiza el mismo comportamiento en otro problema.</p></div>
+</section>
+<section id="panel-activity" role="tabpanel" aria-labelledby="tab-activity" hidden>
+<div class="activity-header"><p class="eyebrow">TRABAJO EN PAREJAS · 8–10 MINUTOS</p><h2>Una hipótesis, un cambio y evidencia</h2><p>Sustituye el ejercicio final por un experimento. Conserva el caso, el presupuesto y las semillas al comparar.</p></div>
+<div class="activity-grid"><ol class="activity-steps"><li><span class="minute">1 min</span><h3>Predice</h3><p>Elige F, CR o NP. Escribe qué esperas observar y por qué. No elijas una semilla porque dé el resultado que buscas.</p></li><li><span class="minute">3 min</span><h3>Observa y compara</h3><p>Ejecuta A y B con una semilla. Mira la curva por evaluaciones. Prueba otra semilla y comprueba si tu impresión se mantiene.</p></li><li><span class="minute">2 min</span><h3>Repite 30 veces</h3><p>Compara la mediana, la variación entre semillas y el porcentaje de corridas que alcanza la referencia. Si hay tiempo, repite con 840 evaluaciones.</p></li><li><span class="minute">2–4 min</span><h3>Explica el resultado</h3><p>Usa dos cifras de la tabla. Si cambiaste NP, explica por qué cambió el número de generaciones. Indica una limitación de tu conclusión.</p></li></ol><section class="panel response-sheet"><h3>Tu registro del experimento</h3><p id="notes-case-label" class="note-case"></p><p class="hint">Se conserva por caso en este navegador cuando hay almacenamiento local. Puedes descargarlo o copiarlo.</p><label for="hypothesis">Mi predicción<textarea id="hypothesis" rows="3" placeholder="Creo que cambiar… producirá… porque…"></textarea></label><label for="evidence">La evidencia<textarea id="evidence" rows="4" placeholder="Con el mismo presupuesto, A obtuvo… y B… La mediana y la dispersión muestran…"></textarea></label><label for="conclusion">Mi conclusión y una limitación<textarea id="conclusion" rows="4" placeholder="La comparación apoya / no apoya… No sabemos si ocurriría lo mismo con…"></textarea></label><button class="button primary" id="download-notes">Descargar mi registro</button><span id="notes-status" aria-live="polite"></span></section></div>
+<details id="legacy-notes" class="panel legacy-notes" hidden><summary>Registro recuperado de la versión anterior</summary><p>La versión anterior no guardaba el caso asociado. Este texto se conserva para que puedas revisarlo y trasladarlo al caso correcto.</p><pre id="legacy-content"></pre></details>
+<section class="takeaways"><h3>Preguntas para la puesta en común</h3><p>¿Se conserva la ventaja al pasar de Esfera a Rastrigin? ¿F más grande siempre mejora más? ¿Por qué CR = 0 todavía puede generar una propuesta? ¿Una población mayor fue mejor con el mismo límite de evaluaciones? ¿Qué cambiaría si cada evaluación tardara dos horas?</p></section>
+</section>
+<section class="panel export-preview" id="export-preview" aria-labelledby="export-title" hidden><div class="panel-heading"><h2 id="export-title">Contenido para exportar</h2><button id="close-export" class="text-button">Cerrar</button></div><p id="export-explanation"></p><label for="export-content">Contenido completo</label><textarea id="export-content" readonly rows="9" spellcheck="false"></textarea><button id="export-select" class="button secondary">Seleccionar todo el texto</button></section>
+<footer class="footer"><p>DE/rand/1/bin · Selección por costo menor o igual · Población fija durante cada generación</p><details><summary>Fuentes y decisiones del laboratorio</summary><p>Datos solares sintéticos de la sesión 36, malla de 41 × 31 diseños. Los costos se almacenan a décimas de dólar. Cada evaluación consulta esa tabla, incluye repeticiones y cuenta aunque el diseño ya se haya probado. El algoritmo conserva coordenadas continuas, recorta el mutante a los límites y redondea al evaluar el caso solar. Un empate exacto entre módulos se resuelve al índice par, como en el modelo original de Python.</p><p>Las semillas son reproducibles dentro de esta aplicación. Su generador aleatorio es diferente al del experimento original en Python, por lo que una semilla con el mismo número no reproduce aquella corrida. Las comparaciones usan generaciones completas y muestran las evaluaciones efectivamente consumidas.</p><p>Referencia: <a href="https://doi.org/10.1023/A:1008202821328" target="_blank" rel="noopener">Storn y Price (1997), Differential Evolution</a>. El terreno usa g(t) = t⁴ − 4t² + t, con f(x₁,x₂) = g(x₁) + g(x₂). La selección y el manejo de límites siguen las convenciones explicadas en clase.</p><p>Funciones de referencia: <a href="https://www.sfu.ca/~ssurjano/spheref.html" target="_blank" rel="noopener">Esfera</a>, <a href="https://www.sfu.ca/~ssurjano/rosen.html" target="_blank" rel="noopener">Rosenbrock</a>, <a href="https://www.sfu.ca/~ssurjano/rastr.html" target="_blank" rel="noopener">Rastrigin</a> y <a href="https://www.sfu.ca/~ssurjano/ackley.html" target="_blank" rel="noopener">Ackley</a>, biblioteca de Surjanovic y Bingham (Simon Fraser University). Usamos dos dimensiones y los dominios indicados en cada caso; no todos coinciden con el dominio habitual de la biblioteca.</p><p>Brecha absoluta = f − f*. La diversidad es la raíz de la media de las varianzas de las coordenadas normalizadas (rango de 0 a 0.5, mostrado en porcentaje). Un valor mostrado como cero por redondeo no demuestra convergencia exacta.</p></details><p class="offline-note">Funciona sin conexión. Sin cuentas ni envío de respuestas.</p></footer>
+</main>
+<script id="solar-data" type="application/json">{"P_kW":[0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0,10.5,11.0,11.5,12.0,12.5,13.0,13.5,14.0,14.5,15.0,15.5,16.0,16.5,17.0,17.5,18.0,18.5,19.0,19.5,20.0],"E_kWh":[0.0,2.0,4.0,6.0,8.0,10.0,12.0,14.0,16.0,18.0,20.0,22.0,24.0,26.0,28.0,30.0,32.0,34.0,36.0,38.0,40.0,42.0,44.0,46.0,48.0,50.0,52.0,54.0,56.0,58.0,60.0],"costo":[[21940.0,22147.5,22235.8,22324.1,22412.4,22500.6,22708.1,22796.4,22884.7,22973.0,23061.3,23268.8,23357.0,23445.3,23533.6,23621.9,23829.4,23917.6,24005.9,24094.2,24182.5,24390.0,24478.3,24566.5,24654.8,24743.1,24950.6,25038.9,25127.2,25215.4,25303.7],[20618.8,20826.3,20914.6,21002.8,21091.1,21179.4,21386.9,21475.2,21563.5,21651.7,21740.0,21947.5,22035.8,22124.1,22212.3,22300.6,22508.1,22596.4,22684.7,22773.0,22861.2,23068.7,23157.0,23245.3,23333.6,23421.8,23629.4,23717.6,23805.9,23894.2,23982.5],[19074.0,19281.5,19369.8,19458.1,19546.3,19634.6,19842.1,19930.4,20018.7,20106.9,20195.2,20402.7,20491.0,20579.3,20667.6,20755.8,20963.3,21051.6,21139.9,21228.2,21316.4,21523.9,21612.2,21700.5,21788.8,21877.1,22084.6,22172.8,22261.1,22349.4,22437.7],[17548.4,17738.6,17826.9,17915.1,18003.4,18091.7,18299.2,18387.5,18475.8,18564.0,18652.3,18859.8,18948.1,19036.4,19124.6,19212.9,19420.4,19508.7,19597.0,19685.3,19773.5,19981.0,20069.3,20157.6,20245.9,20334.1,20541.6,20629.9,20718.2,20806.5,20894.8],[16333.6,16248.2,16314.2,16402.5,16490.8,16579.1,16786.6,16874.9,16963.1,17051.4,17139.7,17347.2,17435.5,17523.7,17612.0,17700.3,17907.8,17996.1,18084.4,18172.6,18260.9,18468.4,18556.7,18645.0,18733.2,18821.5,19029.0,19117.3,19205.6,19293.9,19382.1],[15576.7,15113.7,14910.1,14935.9,15022.8,15111.1,15318.6,15406.9,15495.2,15583.4,15671.7,15879.2,15967.5,16055.8,16144.1,16232.3,16439.8,16528.1,16616.4,16704.7,16792.9,17000.4,17088.7,17177.0,17265.3,17353.6,17561.1,17649.3,17737.6,17825.9,17914.2],[15094.1,14416.3,13882.1,13623.3,13597.7,13669.9,13877.4,13965.7,14053.9,14142.2,14230.5,14438.0,14526.3,14614.5,14702.8,14791.1,14998.6,15086.9,15175.2,15263.4,15351.7,15559.2,15647.5,15735.8,15824.0,15912.3,16119.8,16208.1,16296.4,16384.7,16472.9],[14761.3,13978.0,13236.4,12696.2,12396.0,12304.2,12456.8,12539.0,12627.3,12715.6,12803.9,13011.4,13099.6,13187.9,13276.2,13364.5,13572.0,13660.3,13748.5,13836.8,13925.1,14132.6,14220.9,14309.1,14397.4,14485.7,14693.2,14781.5,14869.8,14958.0,15046.3],[14538.5,13698.0,12840.7,12117.3,11572.2,11225.8,11176.8,11157.1,11214.0,11299.7,11388.0,11595.5,11683.8,11772.0,11860.3,11948.6,12156.1,12244.4,12332.6,12420.9,12509.2,12716.7,12805.0,12893.3,12981.5,13069.8,13277.3,13365.6,13453.9,13542.1,13630.4],[14383.3,13507.7,12586.7,11753.1,11044.2,10485.3,10210.2,9974.7,9889.8,9908.3,9979.8,10186.2,10274.4,10362.7,10451.0,10539.3,10746.8,10835.1,10923.3,11011.6,11099.9,11307.4,11395.7,11484.0,11572.2,11660.5,11868.0,11956.3,12044.6,12132.8,12221.1],[14269.6,13377.6,12412.6,11515.2,10702.6,9997.7,9533.5,9095.8,8804.4,8656.8,8631.2,8792.2,8869.3,8957.5,9045.7,9134.0,9341.5,9429.8,9518.1,9606.4,9694.6,9902.1,9990.4,10078.7,10167.0,10255.2,10462.7,10551.0,10639.3,10727.6,10815.9],[14401.8,13506.4,12510.4,11566.1,10688.2,9888.6,9299.3,8695.1,8224.0,7888.2,7686.9,7727.2,7742.3,7797.8,7875.3,7960.5,8165.0,8250.3,8338.5,8426.8,8515.1,8722.6,8810.9,8899.2,8987.4,9075.7,9283.2,9371.5,9459.8,9548.0,9636.3],[14324.2,13426.7,12416.2,11439.5,10514.4,9648.9,8972.6,8260.2,7638.7,7142.1,6771.5,6648.2,6541.3,6515.6,6536.7,6592.1,6784.0,6865.9,6949.2,7034.5,7119.7,7324.2,7409.4,7497.4,7585.7,7674.0,7881.5,7969.7,8058.0,8146.3,8234.6],[14252.1,13353.2,12340.2,11338.8,10379.1,9469.5,8730.7,7937.9,7222.7,6586.3,6075.8,5826.4,5605.2,5493.0,5448.8,5444.7,5590.5,5633.9,5684.0,5747.3,5815.2,6004.5,6074.5,6146.7,6222.8,6301.0,6501.5,6583.7,6668.4,6753.6,6838.9],[14185.5,13286.4,12271.1,11260.4,10275.4,9328.7,8548.7,7696.0,6905.4,6188.4,5549.0,5202.5,4917.0,4760.6,4671.3,4618.9,4716.7,4713.4,4723.8,4751.2,4782.9,4940.6,4984.5,5042.7,5107.0,5176.4,5365.7,5435.7,5505.8,5575.8,5648.3],[14125.6,13226.5,12208.9,11196.2,10192.0,9221.5,8403.1,7513.0,6665.0,5877.7,5173.2,4732.4,4405.1,4239.7,4137.5,4068.8,4151.2,4136.4,4132.0,4135.2,4148.6,4294.8,4331.0,4371.4,4418.6,4470.0,4644.7,4704.3,4768.0,4832.7,4900.6],[14072.0,13173.0,12154.7,11140.0,10129.1,9135.2,8292.1,7363.9,6482.3,5639.2,4872.9,4391.6,4025.9,3861.4,3778.7,3719.9,3804.2,3788.3,3786.5,3799.6,3830.8,4001.4,4054.7,4112.9,4174.9,4237.0,4420.3,4487.5,4560.4,4640.7,4721.0],[14027.8,13128.7,12110.5,11093.3,10080.9,9073.9,8209.8,7253.3,6334.7,5460.6,4643.9,4120.6,3760.8,3611.6,3548.8,3514.4,3615.5,3612.8,3621.5,3659.9,3714.2,3893.1,3955.2,4020.0,4090.3,4164.2,4365.2,4448.5,4532.6,4621.3,4710.7],[13992.7,13093.5,12075.2,11056.9,10043.0,9031.7,8149.4,7175.8,6226.3,5316.9,4473.8,3921.9,3574.9,3450.8,3408.3,3391.2,3509.3,3516.9,3551.7,3613.2,3681.4,3874.9,3952.2,4031.1,4111.7,4197.6,4404.0,4493.4,4582.8,4672.2,4761.6],[13965.9,13066.3,12048.0,11029.7,10013.1,9000.9,8110.6,7116.9,6151.3,5209.8,4338.0,3778.1,3447.1,3349.9,3331.3,3324.7,3452.2,3495.6,3560.7,3634.9,3709.1,3907.9,3988.2,4070.5,4156.8,4246.2,4454.9,4544.3,4633.7,4723.1,4812.6],[13949.1,13049.1,12030.8,11012.6,9994.5,8980.9,8088.4,7083.5,6097.7,5138.2,4236.6,3674.4,3361.5,3289.8,3285.6,3296.2,3454.1,3518.2,3592.4,3667.4,3745.9,3946.5,4032.9,4119.3,4207.8,4297.2,4505.8,4595.2,4684.6,4774.1,4863.5],[14165.9,13265.4,12247.1,11228.9,10210.6,9194.2,8301.2,7290.8,6291.2,5315.5,4393.6,3825.2,3534.1,3480.2,3489.4,3523.3,3701.6,3775.8,3850.1,3928.8,4014.4,4220.0,4306.4,4392.8,4482.2,4571.6,4780.3,4869.7,4959.1,5048.5,5138.0],[14167.7,13266.7,12248.4,11230.1,10211.9,9194.0,8299.4,7287.3,6279.7,5287.5,4354.8,3782.6,3500.3,3462.0,3491.3,3543.4,3736.5,3813.2,3892.8,3978.0,4064.4,4270.0,4356.4,4443.7,4533.1,4622.6,4831.2,4920.6,5010.0,5099.5,5188.9],[14177.4,13275.8,12257.6,11239.3,10221.0,9202.7,8305.5,7293.2,6282.6,5281.1,4330.6,3761.5,3485.6,3463.2,3508.6,3581.2,3777.6,3857.6,3941.6,4028.0,4114.4,4320.0,4406.4,4494.7,4584.1,4673.5,4882.1,4971.6,5061.0,5150.4,5239.8],[14193.0,13290.9,12272.6,11254.3,10236.1,9217.8,8319.1,7305.1,6293.1,5285.5,4325.6,3750.7,3482.8,3479.7,3545.8,3624.2,3823.7,3905.7,3991.6,4078.0,4164.4,4370.0,4456.4,4545.6,4635.0,4724.4,4933.1,5022.5,5111.9,5201.3,5290.7],[14214.0,13311.9,12292.9,11274.6,10256.3,9238.0,8339.0,7322.6,6310.3,5300.9,4333.9,3756.4,3498.9,3514.1,3590.4,3670.7,3870.5,3955.3,4041.6,4128.0,4214.4,4420.0,4507.1,4596.5,4685.9,4775.3,4984.0,5073.4,5162.8,5252.2,5341.7],[14240.1,13338.0,12318.3,11300.0,10281.7,9263.4,8364.4,7346.5,6332.5,5322.2,4352.8,3776.4,3527.5,3559.7,3636.9,3717.2,3918.9,4005.3,4091.7,4178.0,4264.4,4470.0,4558.0,4647.4,4736.9,4826.3,5034.9,5124.3,5213.7,5303.2,5392.6],[14270.6,13368.5,12348.1,11329.8,10311.5,9293.2,8394.2,7375.9,6359.7,5348.9,4379.1,3806.5,3569.1,3605.9,3683.5,3764.3,3968.9,4055.3,4141.7,4228.1,4314.4,4520.0,4608.9,4698.4,4787.8,4877.2,5085.8,5175.3,5264.7,5354.1,5443.5],[14304.6,13402.5,12381.4,11363.1,10344.8,9326.5,8427.5,7409.2,6391.4,5379.0,4409.7,3841.9,3612.0,3652.1,3730.2,3813.3,4018.9,4105.3,4191.7,4278.1,4364.5,4570.5,4659.9,4749.3,4838.7,4928.1,5136.8,5226.2,5315.6,5405.0,5494.4],[14340.8,13438.7,12417.4,11398.5,10380.3,9362.0,8462.9,7444.6,6426.5,5412.0,4443.0,3879.4,3655.8,3698.4,3777.6,3863.4,4069.0,4155.3,4241.7,4328.1,4414.5,4621.4,4710.8,4800.2,4889.6,4979.1,5187.7,5277.1,5366.5,5455.9,5545.4],[14378.7,13476.6,12455.2,11435.7,10417.4,9399.2,8500.1,7481.8,6463.7,5447.7,4478.0,3918.3,3699.9,3744.7,3827.0,3913.4,4119.0,4205.3,4291.7,4378.1,4464.5,4672.3,4761.7,4851.1,4940.6,5030.0,5238.6,5328.0,5417.5,5506.9,5596.3],[14642.3,13740.2,12718.9,11698.6,10680.4,9662.1,8763.0,7744.7,6726.6,5710.2,4739.5,4181.8,3967.9,4015.6,4100.6,4186.9,4392.5,4478.9,4565.3,4651.7,4738.1,4946.8,5036.2,5125.6,5215.0,5304.4,5513.1,5602.5,5691.9,5781.3,5870.8],[14683.6,13781.5,12760.1,11739.2,10720.9,9702.6,8803.6,7785.3,6767.2,5750.8,4779.2,4222.4,4012.5,4065.1,4150.6,4236.9,4442.5,4528.9,4615.3,4701.7,4789.1,4997.7,5087.1,5176.5,5266.0,5355.4,5564.0,5653.4,5742.8,5832.3,5921.7],[14726.7,13824.6,12803.3,11782.0,10763.4,9745.1,8846.0,7827.7,6809.6,5793.2,4821.7,4265.2,4059.2,4114.9,4200.6,4287.0,4492.6,4578.9,4665.3,4751.7,4840.0,5048.6,5138.0,5227.5,5316.9,5406.3,5614.9,5704.4,5793.8,5883.2,5972.6],[14771.0,13868.9,12847.6,11826.2,10806.9,9788.6,8889.6,7871.3,6853.2,5836.7,4865.4,4309.7,4107.9,4164.8,4250.6,4337.0,4542.6,4629.0,4715.3,4801.7,4890.9,5099.6,5189.0,5278.4,5367.8,5457.2,5665.9,5755.3,5844.7,5934.1,6023.5],[14816.3,13914.2,12892.8,11871.5,10851.5,9833.2,8934.1,7915.8,6897.7,5881.3,4910.2,4356.3,4157.1,4214.7,4300.6,4387.0,4592.6,4679.0,4765.4,4852.4,4941.8,5150.5,5239.9,5329.3,5418.7,5508.2,5716.8,5806.2,5895.6,5985.0,6074.5],[14862.1,13960.0,12938.7,11917.4,10896.6,9878.3,8979.3,7961.0,6942.9,5926.5,4955.6,4403.1,4206.4,4264.6,4350.6,4437.0,4642.6,4729.0,4815.4,4903.3,4992.8,5201.4,5290.8,5380.2,5469.7,5559.1,5767.7,5857.1,5946.6,6036.0,6125.4],[14908.7,14006.6,12985.3,11963.9,10942.6,9924.2,9025.1,8006.8,6988.7,5972.3,5001.6,4450.5,4255.6,4314.6,4400.6,4487.0,4692.6,4779.0,4865.4,4954.3,5043.7,5252.3,5341.8,5431.2,5520.6,5610.0,5818.6,5908.1,5997.5,6086.9,6176.3],[14956.0,14053.9,13032.6,12011.3,10990.0,9970.8,9071.7,8053.4,7035.3,6018.9,5048.3,4498.4,4304.9,4364.5,4450.7,4537.0,4742.6,4829.0,4915.8,5005.2,5094.6,5303.3,5392.7,5482.1,5571.5,5660.9,5869.6,5959.0,6048.4,6137.8,6227.2],[15004.0,14101.9,13080.6,12059.3,11037.9,10017.9,9118.8,8100.6,7082.4,6066.0,5095.6,4546.6,4354.3,4414.4,4500.7,4587.1,4792.7,4879.1,4966.7,5056.1,5145.5,5354.2,5443.6,5533.0,5622.4,5711.9,5920.5,6009.9,6099.3,6188.7,6278.2],[15052.4,14150.3,13129.0,12107.7,11086.4,10065.5,9166.4,8148.2,7130.0,6113.6,5143.3,4595.2,4403.8,4464.4,4550.7,4637.1,4842.7,4929.1,5017.6,5107.1,5196.5,5405.1,5494.5,5583.9,5673.4,5762.8,5971.4,6060.8,6150.3,6239.7,6329.1]],"no_servido_kWh":[[10970.0,10969.4,10968.9,10968.3,10967.7,10967.2,10966.6,10966.0,10965.5,10964.9,10964.3,10963.7,10963.2,10962.6,10962.0,10961.5,10960.9,10960.3,10959.8,10959.2,10958.6,10958.0,10957.5,10956.9,10956.3,10955.8,10955.2,10954.6,10954.1,10953.5,10952.9],[10172.2,10171.6,10171.0,10170.4,10169.9,10169.3,10168.7,10168.2,10167.6,10167.0,10166.5,10165.9,10165.3,10164.7,10164.2,10163.6,10163.0,10162.5,10161.9,10161.3,10160.8,10160.2,10159.6,10159.0,10158.5,10157.9,10157.3,10156.8,10156.2,10155.6,10155.1],[9374.3,9373.7,9373.2,9372.6,9372.0,9371.5,9370.9,9370.3,9369.7,9369.2,9368.6,9368.0,9367.5,9366.9,9366.3,9365.8,9365.2,9364.6,9364.0,9363.5,9362.9,9362.3,9361.8,9361.2,9360.6,9360.1,9359.5,9358.9,9358.3,9357.8,9357.2],[8586.1,8576.8,8576.2,8575.7,8575.1,8574.5,8574.0,8573.4,8572.8,8572.3,8571.7,8571.1,8570.5,8570.0,8569.4,8568.8,8568.3,8567.7,8567.1,8566.6,8566.0,8565.4,8564.8,8564.3,8563.7,8563.1,8562.6,8562.0,8561.4,8560.9,8560.3],[7953.2,7806.2,7794.5,7793.9,7793.3,7792.8,7792.2,7791.6,7791.0,7790.5,7789.9,7789.3,7788.8,7788.2,7787.6,7787.1,7786.5,7785.9,7785.3,7784.8,7784.2,7783.6,7783.1,7782.5,7781.9,7781.4,7780.8,7780.2,7779.6,7779.1,7778.5],[7549.3,7213.4,7066.9,7035.1,7033.9,7033.3,7032.7,7032.2,7031.6,7031.0,7030.5,7029.9,7029.3,7028.7,7028.2,7027.6,7027.0,7026.5,7025.9,7025.3,7024.8,7024.2,7023.6,7023.0,7022.5,7021.9,7021.3,7020.8,7020.2,7019.6,7019.1],[7282.5,6839.3,6527.5,6353.4,6295.8,6287.2,6286.7,6286.1,6285.5,6285.0,6284.4,6283.8,6283.2,6282.7,6282.1,6281.5,6281.0,6280.4,6279.8,6279.3,6278.7,6278.1,6277.5,6277.0,6276.4,6275.8,6275.3,6274.7,6274.1,6273.6,6273.0],[7090.6,6594.7,6179.1,5864.4,5669.5,5578.9,5550.9,5547.3,5546.7,5546.2,5545.6,5545.0,5544.5,5543.9,5543.3,5542.8,5542.2,5541.6,5541.0,5540.5,5539.9,5539.3,5538.8,5538.2,5537.6,5537.1,5536.5,5535.9,5535.3,5534.8,5534.2],[6953.8,6429.2,5955.8,5549.4,5232.2,5014.2,4885.5,4830.9,4814.6,4812.8,4812.2,4811.6,4811.1,4810.5,4809.9,4809.3,4808.8,4808.2,4807.6,4807.1,4806.5,4805.9,4805.4,4804.8,4804.2,4803.6,4803.1,4802.5,4801.9,4801.4,4800.8],[6850.7,6308.6,5803.4,5341.9,4942.7,4618.5,4376.7,4214.2,4127.1,4091.6,4082.7,4081.5,4080.9,4080.4,4079.8,4079.2,4078.7,4078.1,4077.5,4077.0,4076.4,4075.8,4075.2,4074.7,4074.1,4073.5,4073.0,4072.4,4071.8,4071.3,4070.7],[6768.4,6218.1,5690.9,5197.4,4746.5,4349.3,4012.9,3749.3,3558.9,3440.4,3382.9,3359.1,3352.9,3352.3,3351.7,3351.1,3350.6,3350.0,3349.4,3348.9,3348.3,3347.7,3347.1,3346.6,3346.0,3345.4,3344.9,3344.3,3343.7,3343.2,3342.6],[6697.3,6145.2,5602.5,5085.7,4602.0,4157.5,3758.5,3411.7,3131.5,2918.9,2773.5,2689.3,2652.2,2635.2,2629.3,2627.2,2625.1,2623.0,2622.4,2621.9,2621.3,2620.7,2620.1,2619.6,2619.0,2618.4,2617.9,2617.3,2616.7,2616.2,2615.6],[6633.0,6079.9,5530.0,4996.9,4489.7,4012.2,3569.7,3168.8,2813.4,2520.4,2290.3,2124.4,2026.2,1968.7,1934.5,1917.5,1909.1,1905.3,1902.3,1900.2,1898.1,1896.0,1893.9,1893.2,1892.7,1892.1,1891.5,1891.0,1890.4,1889.8,1889.3],[6571.5,6017.7,5466.5,4921.1,4396.6,3897.1,3423.3,2982.2,2579.9,2217.0,1917.0,1688.0,1532.7,1431.9,1365.1,1318.3,1286.9,1263.9,1244.2,1231.2,1220.4,1210.7,1201.0,1192.4,1185.8,1180.1,1176.1,1172.5,1170.1,1168.0,1165.9],[6512.7,5958.9,5406.5,4856.4,4319.2,3801.1,3306.9,2835.8,2395.8,1992.6,1628.2,1350.6,1163.1,1040.2,950.9,880.0,824.5,778.2,738.7,707.7,678.8,653.3,630.5,614.9,602.4,592.4,582.7,573.0,563.3,553.6,545.2],[6457.3,5903.4,5349.9,4798.9,4252.1,3722.1,3208.6,2718.8,2250.1,1811.7,1414.8,1090.1,881.7,754.3,658.5,579.4,516.3,464.2,417.3,374.2,336.2,304.9,278.4,253.8,232.7,213.7,196.7,181.8,169.0,156.6,145.9],[6405.1,5851.2,5297.4,4745.3,4195.2,3653.5,3127.6,2618.8,2133.3,1667.0,1239.2,894.2,666.7,539.7,453.6,379.5,317.3,264.7,219.1,180.9,151.8,132.8,114.7,99.1,85.4,71.8,59.1,48.0,39.7,35.2,30.6],[6357.5,5803.6,5249.8,4696.5,4145.6,3597.4,3061.0,2538.0,2034.0,1552.3,1099.2,733.3,508.6,389.3,313.2,251.3,197.5,151.5,111.1,85.6,68.1,53.2,39.5,27.2,17.7,9.9,6.1,3.0,0.4,0.0,0.0],[6314.5,5760.6,5206.7,4652.9,4101.2,3550.8,3005.4,2473.8,1954.4,1455.0,988.7,608.5,390.2,283.5,217.5,164.2,119.0,78.1,50.8,36.8,26.2,18.6,12.5,7.3,2.9,1.2,0.0,0.0,0.0,0.0,0.0],[6275.6,5721.5,5167.6,4613.8,4060.8,3510.0,2960.5,2418.9,1891.4,1375.9,895.4,511.1,300.9,207.6,153.6,105.5,65.0,42.0,29.8,22.2,14.6,9.7,5.1,1.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6241.7,5687.4,5133.6,4579.7,4026.0,3474.5,2923.9,2376.7,1839.2,1314.7,819.2,433.8,232.6,152.1,105.2,65.8,40.5,27.8,20.2,13.0,7.5,3.5,2.0,0.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6212.9,5658.3,5104.5,4550.6,3996.8,3443.9,2893.1,2343.2,1798.7,1266.1,760.5,371.9,181.7,110.0,69.9,42.1,27.0,19.4,11.8,6.4,4.5,3.0,1.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6188.4,5633.5,5079.7,4525.8,3972.0,3418.3,2866.7,2315.9,1767.5,1226.6,715.6,325.2,139.3,75.5,45.4,26.7,19.0,12.6,7.7,5.6,4.1,2.6,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6167.7,5612.6,5058.8,4504.9,3951.1,3397.2,2844.3,2293.4,1743.4,1198.0,678.0,289.2,106.5,50.6,28.6,20.1,14.1,9.3,6.6,5.1,3.6,2.1,0.6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6150.1,5594.7,5040.9,4487.0,3933.2,3379.3,2825.6,2274.0,1723.2,1174.7,650.1,258.3,79.6,33.4,21.7,16.2,11.6,7.9,6.2,4.7,3.1,1.6,0.1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6135.1,5579.7,5025.5,4471.7,3917.8,3364.0,2810.1,2257.2,1706.3,1157.0,628.8,235.7,62.2,25.1,18.5,14.0,9.6,7.2,5.7,4.2,2.7,1.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6122.7,5567.3,5012.8,4458.9,3905.1,3351.2,2797.4,2243.7,1692.0,1142.1,612.8,220.2,51.1,22.4,16.3,11.8,8.3,6.8,5.3,3.8,2.2,0.7,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6112.5,5557.1,5002.2,4448.3,3894.5,3340.6,2786.8,2232.9,1680.1,1130.0,600.4,209.8,46.4,20.1,14.2,9.9,7.9,6.3,4.8,3.3,1.8,0.3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6104.0,5548.6,4993.4,4439.5,3885.7,3331.8,2778.0,2224.1,1670.5,1119.6,590.3,202.0,42.4,17.7,12.0,8.9,7.4,5.9,4.4,2.8,1.3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6096.6,5541.3,4985.9,4431.8,3877.9,3324.1,2770.2,2216.4,1662.6,1110.7,581.4,195.3,38.8,15.4,10.3,8.5,6.9,5.4,3.9,2.4,0.9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6090.1,5534.8,4979.4,4424.9,3871.1,3317.2,2763.4,2209.5,1655.7,1103.0,573.5,189.3,35.4,13.1,9.5,8.0,6.5,5.0,3.4,1.9,0.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6084.7,5529.3,4974.0,4419.1,3865.3,3311.4,2757.6,2203.7,1650.0,1097.1,567.0,183.8,32.2,11.3,9.1,7.6,6.0,4.5,3.0,1.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6079.9,5524.5,4969.1,4414.0,3860.1,3306.3,2752.4,2198.6,1644.8,1091.9,561.4,178.7,29.0,10.6,8.6,7.1,5.6,4.1,2.5,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6076.0,5520.6,4965.3,4409.9,3855.9,3302.0,2748.2,2194.3,1640.6,1087.6,557.1,174.6,26.9,10.0,8.2,6.6,5.1,3.6,2.1,0.6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6072.7,5517.3,4961.9,4406.5,3852.2,3298.3,2744.5,2190.6,1636.9,1083.9,553.5,171.4,25.8,9.5,7.7,6.2,4.7,3.1,1.6,0.1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6069.8,5514.5,4959.1,4403.7,3849.0,3295.1,2741.3,2187.4,1633.7,1080.8,550.5,169.2,24.9,9.0,7.3,5.7,4.2,2.7,1.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6067.3,5511.9,4956.6,4401.2,3846.1,3292.3,2738.4,2184.6,1630.8,1077.9,547.7,167.2,24.1,8.5,6.8,5.3,3.8,2.2,0.7,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6065.1,5509.8,4954.4,4399.0,3843.6,3289.7,2735.9,2182.0,1628.3,1075.3,545.2,165.4,23.2,8.0,6.3,4.8,3.3,1.8,0.3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6063.3,5508.0,4952.6,4397.2,3841.9,3287.5,2733.7,2179.8,1626.1,1073.2,543.1,163.9,22.4,7.5,5.9,4.4,2.9,1.3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6061.9,5506.5,4951.1,4395.8,3840.4,3285.6,2731.8,2177.9,1624.2,1071.3,541.3,162.5,21.7,7.0,5.4,3.9,2.4,0.9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[6060.6,5505.2,4949.9,4394.5,3839.1,3284.0,2730.1,2176.3,1622.5,1069.6,539.7,161.3,20.9,6.5,5.0,3.5,2.0,0.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]],"optimo_malla":{"P_kW":10.0,"E_kWh":28.0,"costo":3285.55,"no_servido_kWh":105.2,"fraccion_no_servida":0.0096},"evaluaciones_malla":1271}</script>
+<script>/* Laboratorio de evolución diferencial, sesión 36.
+ * API sin dependencias: window.DELabEngine en navegador, module.exports en Node.
+ * DE/rand/1/bin generacional. Coordenadas internas normalizadas en [0,1].
+ * No se mezclan individuos recién aceptados con los donantes de su generación.
+ * Toda llamada de evaluación cuenta, aunque corresponda a una celda ya visitada.
+ */
+(function (root, factory) {
+  "use strict";
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.DELabEngine = factory();
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  const clamp01 = (x) => Math.min(1, Math.max(0, x));
+  const finite = (x) => typeof x === "number" && Number.isFinite(x);
+  function assert(condition, message) {
+    if (!condition) throw new Error(message);
+  }
+  function integer(value, min, name) {
+    assert(Number.isSafeInteger(value) && value >= min, `${name} debe ser un entero ≥ ${min}.`);
+    return value;
+  }
+  function point(u, dimension) {
+    assert(Array.isArray(u) && u.length === dimension && u.every(finite),
+      `Se requieren ${dimension} coordenadas numéricas finitas.`);
+    return u.map(clamp01);
+  }
+
+  // Mulberry32: mismo uint32 inicial => exactamente la misma secuencia.
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function createSolarProblem(data) {
+    assert(data && Array.isArray(data.P_kW) && Array.isArray(data.E_kWh) && Array.isArray(data.costo),
+      "La malla solar requiere P_kW, E_kWh y costo.");
+    const xs = data.P_kW.slice(), ys = data.E_kWh.slice();
+    assert(xs.length >= 2 && ys.length >= 2 && xs.every(finite) && ys.every(finite),
+      "Los ejes de la malla deben contener al menos dos valores finitos.");
+    for (const axis of [xs, ys]) {
+      const step = axis[1] - axis[0];
+      assert(step > 0 && axis.every((v, i) => Math.abs(v - (axis[0] + i * step)) < 1e-9),
+        "La malla solar debe tener ejes regulares y crecientes.");
+    }
+    assert(data.costo.length === xs.length && data.costo.every(
+      (row) => Array.isArray(row) && row.length === ys.length && row.every(finite)),
+    "Las dimensiones de costo no coinciden con los ejes de la malla.");
+    const costs = data.costo.map((row) => row.slice());
+    let unserved = null;
+    if (data.no_servido_kWh !== undefined) {
+      assert(Array.isArray(data.no_servido_kWh) && data.no_servido_kWh.length === xs.length &&
+        Array.from(data.no_servido_kWh).every((row) => Array.isArray(row) &&
+          row.length === ys.length && Array.from(row).every(finite)),
+      "no_servido_kWh debe ser una matriz de valores finitos con las mismas dimensiones que costo.");
+      unserved = data.no_servido_kWh.map((row) => row.slice());
+    }
+    let min = Infinity, max = -Infinity, bestIJ = [0, 0];
+    costs.forEach((row, i) => row.forEach((value, j) => {
+      if (value < min) { min = value; bestIJ = [i, j]; }
+      max = Math.max(max, value);
+    }));
+    function nearestEven(value) {
+      const lower = Math.floor(value);
+      // Como np.rint: solo los empates exactos se llevan al índice par.
+      return value - lower === 0.5 ? lower + (lower % 2) : Math.round(value);
+    }
+    function indices(u) {
+      const v = point(u, 2);
+      return [nearestEven(v[0] * (xs.length - 1)), nearestEven(v[1] * (ys.length - 1))];
+    }
+    function decode(u) {
+      const [i, j] = indices(u);
+      return {
+        x: xs[i], y: ys[j], coords: [xs[i], ys[j]], indices: [i, j],
+        P_kW: xs[i], E_kWh: ys[j], cost: costs[i][j],
+        unserved: unserved ? unserved[i][j] : null,
+        no_servido_kWh: unserved ? unserved[i][j] : null
+      };
+    }
+    const optimumPoint = [bestIJ[0] / (xs.length - 1), bestIJ[1] / (ys.length - 1)];
+    return {
+      id: "solar", name: "Sistema solar con batería", dimension: 2,
+      bounds: [[xs[0], xs[xs.length - 1]], [ys[0], ys[ys.length - 1]]],
+      labels: ["Potencia solar P (kW)", "Capacidad de batería E (kWh)"],
+      xValues: xs, yValues: ys, costs, gridSize: [xs.length, ys.length],
+      totalDesigns: xs.length * ys.length, costRange: [min, max],
+      successTolerance: 1e-8,
+      sourceNote: data._nota || "Modelo simplificado, datos sintéticos.",
+      // La referencia es el mínimo de LA MATRIZ utilizada al evaluar.
+      // optimo_malla.costo puede tener otra precisión; no se usa como referencia.
+      optimum: { value: min, cost: min, point: optimumPoint, decoded: decode(optimumPoint) },
+      evaluate(u) { const [i, j] = indices(u); return costs[i][j]; },
+      decode,
+      project(u) { const [i, j] = indices(u); return [i / (xs.length - 1), j / (ys.length - 1)]; },
+      key(u) { return indices(u).join(","); }
+    };
+  }
+
+  function createTerrainProblem() {
+    const lo = -2.2, hi = 2.2, width = hi - lo;
+    const g = (x) => x ** 4 - 4 * x ** 2 + x;
+    const derivative = (x) => 4 * x ** 3 - 8 * x + 1;
+    const turning = Math.sqrt(2 / 3);
+    const intervals = [[lo, -turning], [-turning, turning], [turning, hi]];
+    const critical = intervals.map(([start, end]) => {
+      let a = start, b = end, fa = derivative(a);
+      for (let k = 0; k < 80; k++) {
+        const mid = (a + b) / 2, fm = derivative(mid);
+        if (fa * fm <= 0) b = mid;
+        else { a = mid; fa = fm; }
+      }
+      return (a + b) / 2;
+    });
+    const candidates = [lo, hi, ...critical];
+    const minimizer = candidates.reduce((a, b) => g(a) <= g(b) ? a : b);
+    const maximum = Math.max(...candidates.map(g)) * 2;
+    function decode(u) {
+      const v = point(u, 2), x = lo + width * v[0], y = lo + width * v[1];
+      return { x, y, coords: [x, y], cost: g(x) + g(y) };
+    }
+    const optimumPoint = [(minimizer - lo) / width, (minimizer - lo) / width];
+    const minimum = 2 * g(minimizer);
+    return {
+      id: "terrain", name: "Terreno de cuatro valles", dimension: 2,
+      bounds: [[lo, hi], [lo, hi]], labels: ["x₁", "x₂"],
+      formula: "f(x₁,x₂) = (x₁⁴ − 4x₁² + x₁) + (x₂⁴ − 4x₂² + x₂)",
+      costRange: [minimum, maximum], totalDesigns: null,
+      successTolerance: 0.01,
+      optimum: { value: minimum, cost: minimum, point: optimumPoint, decoded: decode(optimumPoint) },
+      evaluate(u) { return decode(u).cost; }, decode,
+      project(u) { return point(u, 2); },
+      // Sin discretización artificial: posiciones idénticas son repetidas.
+      key(u) { return point(u, 2).join(","); }
+    };
+  }
+
+  function createBenchmarkProblem(id) {
+    const definitions = {
+      sphere: {
+        name: "Esfera", bounds: [[-5, 5], [-5, 5]], minimum: [0, 0], maximumBound: 50,
+        description: "Un mínimo global y una superficie suave, sin mínimos locales adicionales.",
+        formula: "f(x₁,x₂) = x₁² + x₂²",
+        domainText: "x₁, x₂ ∈ [−5, 5]", optimumText: "(0, 0), f = 0",
+        teachingNote: "Sirve como referencia sencilla: observa la velocidad de acercamiento al mínimo y la pérdida de diversidad.",
+        objective: (x, y) => x * x + y * y
+      },
+      rosenbrock: {
+        name: "Rosenbrock", bounds: [[-2, 2], [-1, 3]], minimum: [1, 1], maximumBound: 2509,
+        description: "Un valle estrecho y curvo conduce al mínimo global; las variables están acopladas.",
+        formula: "f(x₁,x₂) = (1 − x₁)² + 100(x₂ − x₁²)²",
+        domainText: "x₁ ∈ [−2, 2]; x₂ ∈ [−1, 3]", optimumText: "(1, 1), f = 0",
+        teachingNote: "Compara CR bajo y alto: combinar las coordenadas afecta el avance a lo largo del valle. Aumenta el presupuesto para observar el afinamiento.",
+        objective: (x, y) => (1 - x) ** 2 + 100 * (y - x * x) ** 2
+      },
+      rastrigin: {
+        name: "Rastrigin", bounds: [[-5.12, 5.12], [-5.12, 5.12]], minimum: [0, 0],
+        maximumBound: 40 + 2 * 5.12 ** 2,
+        description: "Muchos mínimos locales distribuidos en una superficie periódica; el mínimo global está en el origen.",
+        formula: "f(x₁,x₂) = 20 + x₁² + x₂² − 10 cos(2πx₁) − 10 cos(2πx₂)",
+        domainText: "x₁, x₂ ∈ [−5.12, 5.12]", optimumText: "(0, 0), f = 0",
+        teachingNote: "Observa si la población conserva exploración o se concentra en un mínimo local. Compara varias semillas antes de concluir sobre F o NP.",
+        objective: (x, y) => x * x + y * y +
+          10 * (1 - Math.cos(2 * Math.PI * x)) + 10 * (1 - Math.cos(2 * Math.PI * y))
+      },
+      ackley: {
+        name: "Ackley", bounds: [[-5, 5], [-5, 5]], minimum: [0, 0],
+        // r ≤ 5 y −1 ≤ media(cos) ≤ 1: esta cota no presupone un máximo exacto.
+        maximumBound: 20 + Math.E - 21 / Math.E,
+        description: "Una región exterior ondulada rodea un pozo central pronunciado con mínimo en el origen.",
+        formula: "f(x₁,x₂) = −20 exp(−0.2√((x₁²+x₂²)/2)) − exp((cos(2πx₁)+cos(2πx₂))/2) + 20 + e",
+        domainText: "x₁, x₂ ∈ [−5, 5]", optimumText: "(0, 0), f = 0",
+        teachingNote: "Distingue encontrar la región central de afinar la solución: compara las curvas y la brecha final con distintos presupuestos.",
+        objective(x, y) {
+          const radius = Math.sqrt((x * x + y * y) / 2);
+          const meanCos = (Math.cos(2 * Math.PI * x) + Math.cos(2 * Math.PI * y)) / 2;
+          // Forma equivalente que evita cancelar 20 − 20 cerca del origen.
+          const value = -20 * Math.expm1(-0.2 * radius) + (Math.E - Math.exp(meanCos));
+          return value < 0 && value > -1e-12 ? 0 : value;
+        }
+      }
+    };
+    assert(Object.prototype.hasOwnProperty.call(definitions, id), `Función objetivo desconocida: ${id}.`);
+    const definition = definitions[id];
+    const bounds = definition.bounds.map((pair) => pair.slice());
+    function decode(u) {
+      const v = point(u, 2);
+      const coords = v.map((value, j) => bounds[j][0] + value * (bounds[j][1] - bounds[j][0]));
+      const [x, y] = coords;
+      return { x, y, coords, cost: definition.objective(x, y) };
+    }
+    const optimumPoint = definition.minimum.map((value, j) =>
+      (value - bounds[j][0]) / (bounds[j][1] - bounds[j][0]));
+    return {
+      id, name: definition.name, dimension: 2, bounds, labels: ["x₁", "x₂"],
+      description: definition.description, formula: definition.formula,
+      domainText: definition.domainText, optimumText: definition.optimumText,
+      teachingNote: definition.teachingNote,
+      costRange: [0, definition.maximumBound], totalDesigns: null, successTolerance: 1e-4,
+      optimum: { value: 0, cost: 0, point: optimumPoint, decoded: decode(optimumPoint) },
+      evaluate(u) { return decode(u).cost; }, decode,
+      project(u) { return point(u, 2); },
+      key(u) { return point(u, 2).join(","); }
+    };
+  }
+
+  function normalizeConfig(config) {
+    const c = Object.assign({
+      np: 20, F: 0.8, CR: 0.9, seed: 36, budgetMode: "generations",
+      generations: 50, budget: 1200
+    }, config || {});
+    integer(c.np, 4, "NP");
+    assert(finite(c.F) && c.F >= 0 && c.F <= 2, "F debe estar entre 0 y 2.");
+    assert(finite(c.CR) && c.CR >= 0 && c.CR <= 1, "CR debe estar entre 0 y 1.");
+    integer(c.seed, 0, "La semilla");
+    assert(c.seed <= 0xFFFFFFFF, "La semilla debe ser un entero de 32 bits sin signo.");
+    assert(["generations", "evaluations"].includes(c.budgetMode), "Modo de presupuesto desconocido.");
+    if (c.budgetMode === "generations") integer(c.generations, 0, "Las generaciones");
+    else integer(c.budget, c.np, "El presupuesto");
+    return c;
+  }
+
+  // Diversidad = raíz de la media de las varianzas por coordenada normalizada.
+  // No depende de las unidades de P y E y no equivale al nº de celdas distintas.
+  function diversity(population) {
+    const n = population.length, d = population[0].length;
+    const mean = Array(d).fill(0);
+    population.forEach((p) => p.forEach((v, j) => { mean[j] += v / n; }));
+    let sum = 0;
+    population.forEach((p) => p.forEach((v, j) => { sum += (v - mean[j]) ** 2; }));
+    return Math.sqrt(sum / (n * d));
+  }
+
+  function evaluate(run, u) {
+    const value = run.problem.evaluate(u);
+    assert(finite(value), "La función objetivo produjo un valor no finito.");
+    run.evaluations += 1;
+    run.uniqueVisited.add(run.problem.key ? run.problem.key(u) : u.join(","));
+    return value;
+  }
+
+  function snapshot(run) {
+    let bestIndex = 0;
+    for (let i = 1; i < run.values.length; i++) {
+      if (run.values[i] < run.values[bestIndex]) bestIndex = i;
+    }
+    run.best = run.values[bestIndex];
+    run.bestPoint = run.population[bestIndex].slice();
+    run.bestIndex = bestIndex;
+    run.diversity = diversity(run.population);
+    run.done = run.generation >= run.maxGenerations;
+    run.trace.push({
+      generation: run.generation, evaluations: run.evaluations,
+      best: run.best, diversity: run.diversity, uniqueVisited: run.uniqueVisited.size,
+      bestPoint: run.bestPoint.slice()
+    });
+  }
+
+  function createRun(problem, config) {
+    assert(problem && typeof problem.evaluate === "function" && problem.dimension >= 1,
+      "Se requiere un problema con evaluate y dimension.");
+    const c = normalizeConfig(config);
+    const maxGenerations = c.budgetMode === "evaluations"
+      ? Math.floor(c.budget / c.np) - 1 : c.generations;
+    const rng = mulberry32(c.seed);
+    const run = {
+      problem, config: c, population: [], values: [], generation: 0, evaluations: 0,
+      maxGenerations, effectiveBudget: c.np * (maxGenerations + 1),
+      requestedBudget: c.budgetMode === "evaluations" ? c.budget : c.np * (maxGenerations + 1),
+      uniqueVisited: new Set(), trace: [], lastTrial: null, lastTrials: [], done: false,
+      _rng: rng
+    };
+    for (let i = 0; i < c.np; i++) {
+      const u = Array.from({ length: problem.dimension }, () => rng());
+      run.population.push(u);
+      run.values.push(evaluate(run, u));
+    }
+    snapshot(run);
+    return run;
+  }
+
+  function stepGeneration(run) {
+    if (run.done) return run;
+    const c = run.config, n = c.np, d = run.problem.dimension, rng = run._rng;
+    // Estas referencias permanecen intactas hasta terminar TODOS los ensayos.
+    const previous = run.population, previousValues = run.values;
+    const next = [], nextValues = [], trials = [];
+    for (let i = 0; i < n; i++) {
+      const r = [];
+      while (r.length < 3) {
+        const candidate = Math.floor(rng() * n);
+        if (candidate !== i && !r.includes(candidate)) r.push(candidate);
+      }
+      const donors = r.map((index) => previous[index].slice());
+      const target = previous[i].slice();
+      const mutantRaw = target.map((_, j) => donors[0][j] + c.F * (donors[1][j] - donors[2][j]));
+      // Reparación mediante recorte ANTES de la cruza binomial.
+      const mutant = mutantRaw.map(clamp01);
+      const jrand = Math.floor(rng() * d);
+      const crossRand = Array.from({ length: d }, () => rng());
+      const crossMask = crossRand.map((v, j) => j === jrand || v <= c.CR);
+      const trial = target.map((v, j) => crossMask[j] ? mutant[j] : v);
+      const targetCost = previousValues[i], trialCost = evaluate(run, trial);
+      const accepted = trialCost <= targetCost; // Los empates se aceptan.
+      next.push(accepted ? trial.slice() : target.slice());
+      nextValues.push(accepted ? trialCost : targetCost);
+      trials.push({
+        generation: run.generation + 1, i, r, donors: r.slice(), donorPoints: donors,
+        target, mutantRaw, rawMutant: mutantRaw.slice(), mutant,
+        clipped: mutantRaw.some((v) => v < 0 || v > 1),
+        crossRand, crossMask, jrand, trial, targetCost, trialCost, accepted
+      });
+    }
+    run.population = next;
+    run.values = nextValues;
+    run.generation += 1;
+    run.lastTrials = trials;
+    // El inspector presenta siempre al primer objetivo (i=0); lastTrials conserva todos.
+    run.lastTrial = trials[0];
+    snapshot(run);
+    return run;
+  }
+
+  function runToEnd(run) {
+    while (!run.done) stepGeneration(run);
+    return run;
+  }
+
+  function summarize(run) {
+    const optimum = run.problem.optimum;
+    const gap = optimum ? Math.max(0, run.best - optimum.value) : null;
+    return {
+      config: Object.assign({}, run.config), seed: run.config.seed,
+      best: run.best, bestPoint: run.bestPoint.slice(),
+      decoded: run.problem.decode ? run.problem.decode(run.bestPoint) : run.bestPoint.slice(),
+      optimum: optimum ? optimum.value : null, gap,
+      success: gap !== null && gap <= (run.problem.successTolerance || 0),
+      evaluations: run.evaluations, generations: run.generation, generation: run.generation,
+      maxGenerations: run.maxGenerations, effectiveBudget: run.effectiveBudget,
+      requestedBudget: run.requestedBudget, unusedBudget: run.requestedBudget - run.effectiveBudget,
+      diversity: run.diversity, uniqueVisited: run.uniqueVisited.size, done: run.done
+    };
+  }
+
+  function statistics(values) {
+    const sorted = values.slice().sort((a, b) => a - b), n = values.length;
+    const mean = values.reduce((s, v) => s + v, 0) / n;
+    return {
+      mean, median: n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2,
+      min: sorted[0], max: sorted[n - 1],
+      std: Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / n)
+    };
+  }
+
+  /* Repeticiones emparejadas por semilla, sin ocultar el costo real.
+   * options.seeds = array de uint32 (por defecto 1..20).
+   * options.budget, si existe, aplica el mismo techo de evaluaciones a cada config.
+   * results[k].runs contiene resúmenes; results[k].stats describe los costos.
+   * Diferentes NP pueden dejar distinto sobrante al usar generaciones completas.
+   */
+  function repeatCompare(problem, configs, options) {
+    assert(Array.isArray(configs) && configs.length >= 1, "Se requiere al menos una configuración.");
+    const o = options || {};
+    const seeds = o.seeds || Array.from({ length: 20 }, (_, i) => i + 1);
+    assert(Array.isArray(seeds) && seeds.length > 0, "Se requiere al menos una semilla.");
+    const results = configs.map((config, index) => {
+      const runs = seeds.map((seed) => {
+        const c = Object.assign({}, config, { seed });
+        if (o.budget !== undefined) { c.budgetMode = "evaluations"; c.budget = o.budget; }
+        return summarize(runToEnd(createRun(problem, c)));
+      });
+      const stats = statistics(runs.map((r) => r.best));
+      const successes = runs.filter((r) => r.success).length;
+      return Object.assign({
+        index, config: Object.assign({}, config), runs, stats,
+        successes, successRate: successes / runs.length,
+        meanGap: runs[0].gap === null ? null : runs.reduce((s, r) => s + r.gap, 0) / runs.length,
+        evaluations: runs[0].evaluations, generations: runs[0].generations
+      }, stats);
+    });
+    const wins = configs.map(() => 0);
+    let ties = 0;
+    const pairs = seeds.map((seed, i) => {
+      const bests = results.map((r) => r.runs[i].best);
+      const best = Math.min(...bests);
+      const winners = bests.map((v, j) => Math.abs(v - best) <= 1e-8 ? j : -1).filter((j) => j >= 0);
+      if (winners.length === 1) wins[winners[0]] += 1;
+      else ties += 1;
+      return { seed, bests, gaps: results.map((r) => r.runs[i].gap), winners };
+    });
+    return { seeds: seeds.slice(), budget: o.budget === undefined ? null : o.budget, results, pairs, wins, ties };
+  }
+
+  return {
+    createSolarProblem, createTerrainProblem, createBenchmarkProblem, createRun, stepGeneration, runToEnd, summarize,
+    repeatCompare, mulberry32, diversity
+  };
+});
+</script>
+<script>(function () {
+'use strict';
+const $ = id => document.getElementById(id);
+const Engine = window.DELabEngine;
+const solarData = JSON.parse($('solar-data').textContent);
+const problems = {solar: Engine.createSolarProblem(solarData), terrain: Engine.createTerrainProblem(), ...Object.fromEntries(['sphere','rosenbrock','rastrigin','ackley'].map(id=>[id,Engine.createBenchmarkProblem(id)]))};
+const colors = {a:'#0f4c5c', b:'#ad5429', ink:'#20343a', muted:'#61747a', grid:'#e0e7e2', green:'#45684e'};
+const state = {problem:problems.solar,run:null,timer:null,playing:false,tab:'explore',comparison:null,batchId:0};
+const heatmaps = new Map();
+const fmt = (x,d=0) => Number(x).toLocaleString('es-MX',{minimumFractionDigits:d,maximumFractionDigits:d});
+const absoluteGap = value => Math.max(0,value-state.problem.optimum.value);
+const precise = value => {const a=Math.abs(value);return a===0?'0':(a<0.001?Number(value).toExponential(3):Number(value).toLocaleString('es-MX',{maximumSignificantDigits:9}));};
+const gapUnit = () => state.problem.id==='solar'?'dólares/año':'unidades de f';
+const escapeHTML = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = (value,d=1) => state.problem.id==='solar' ? '$'+fmt(value,d) : precise(value);
+const physical = p => p.map((v,j)=>state.problem.bounds[j][0]+v*(state.problem.bounds[j][1]-state.problem.bounds[j][0]));
+const vector = (p,d=2) => '('+physical(p).map(v=>fmt(v,d)).join(', ')+')';
+function number(id,min,max,integer=false){
+ const el=$(id), value=Number(el.value);
+ if(el.value.trim()==='' || !Number.isFinite(value) || value<min || value>max || (integer&&!Number.isInteger(value))){
+  el.setAttribute('aria-invalid','true');throw new Error(`${el.labels?.[0]?.textContent?.trim()||id}: usa ${integer?'un entero':'un valor'} entre ${min} y ${max}.`);
+ }
+ el.removeAttribute('aria-invalid');return value;
+}
+function settings(){const budgetMode=$('stop-mode').value;return {np:number('np',4,60,true),F:number('factor',0,2),CR:number('cr',0,1),seed:number('seed',0,999999,true),budgetMode,generations:budgetMode==='generations'?number('generations',1,200,true):20,budget:budgetMode==='evaluations'?number('budget',4,12000,true):840};}
+function status(text,error=false){$('run-status').textContent=text;$('run-status').classList.toggle('error',error);}
+function syncRunControls(){const r=state.run,initialOnly=r&&r.maxGenerations===0;
+ $('play').disabled=!r||initialOnly;$('step').disabled=!r||r.done;$('finish').disabled=!r||r.done;
+ $('play').textContent=initialOnly?'Sin generaciones':state.playing?'Pausar':r?.done?'Volver a correr':r?.generation?'Continuar':'Iniciar';
+}
+function pause(){if(state.timer)clearTimeout(state.timer);state.timer=null;state.playing=false;syncRunControls();}
+function initRun(message='Población inicial lista. La semilla permite repetirla.'){
+ pause();$('generations-field').hidden=$('stop-mode').value==='evaluations';$('budget-field').hidden=$('stop-mode').value!=='evaluations';try{
+  state.run=Engine.createRun(state.problem,settings());
+  ['play','step','finish'].forEach(id=>$(id).disabled=false);
+  $('np-out').value=$('np').value;$('factor-out').value=fmt(Number($('factor').value),2);$('cr-out').value=fmt(Number($('cr').value),2);
+  const inherited=(1+Number($('cr').value))/2*100;
+  $('cr-help').textContent=`En 2D, se toma del mutante un ${fmt(inherited,0)}% de las coordenadas en promedio. jrand obliga al menos una.`;
+  $('generations-field').hidden=$('stop-mode').value==='evaluations';$('budget-field').hidden=$('stop-mode').value!=='evaluations';
+  $('budget-note').textContent=`${fmt(state.run.effectiveBudget)} evaluaciones = ${state.run.config.np} iniciales + ${state.run.maxGenerations} generaciones × ${state.run.config.np}.`+(state.run.requestedBudget!==state.run.effectiveBudget?` Quedan ${state.run.requestedBudget-state.run.effectiveBudget} sin usar: solo generaciones completas.`:'');
+  status(message);renderRun();
+ }catch(e){state.run=null;status(e.message,true);['play','step','finish'].forEach(id=>$(id).disabled=true);$('run-metrics').innerHTML='';$('generation-label').textContent='Corrige la configuración';$('budget-note').textContent='';$('map-summary').textContent='Introduce valores válidos para iniciar una corrida.';$('landscape').setAttribute('aria-label','Mapa pendiente de una configuración válida.');$('map-tooltip').hidden=true;$('convergence-caption').textContent='Corrige la configuración para dibujar la trayectoria.';['landscape','convergence'].forEach(id=>prepareCanvas(id));mapGeometry=null;renderOperator();}
+}
+function renderRun(){
+ const run=state.run;if(!run)return;const s=Engine.summarize(run), d=s.decoded;
+ const design=state.problem.id==='solar'?`${fmt(d.P_kW,1)} kW + ${fmt(d.E_kWh,0)} kWh`:`(${fmt(d.x,2)}, ${fmt(d.y,2)})`;
+ const metrics=[['Mejor valor',money(s.best),state.problem.id==='solar'?'dólares por año':'valor de f'],['Brecha absoluta',precise(s.gap),gapUnit()],['Evaluaciones',fmt(s.evaluations),`de ${fmt(run.effectiveBudget)} previstas`],['Diversidad',fmt(s.diversity*100,1)+'%','dispersión normalizada']];
+ $('run-metrics').innerHTML=metrics.map(([label,value,sub])=>`<div class="metric"><span class="metric-label">${label}</span><strong>${value}</strong><small>${sub}</small></div>`).join('');
+ $('generation-label').textContent=`Generación ${run.generation} / ${run.maxGenerations}`;
+ const uniqueNow=new Set(run.population.map(p=>state.problem.key(p))).size;
+ $('map-summary').textContent=`Mejor actual: ${design}. ${uniqueNow} ${uniqueNow===1?'posición evaluada distinta':'posiciones evaluadas distintas'} en esta población; ${s.uniqueVisited} visitadas en la corrida. El mapa es una referencia didáctica; DE solo consulta sus propuestas.`;
+ $('landscape').setAttribute('aria-label',`Población de ${run.config.np} individuos. ${$('map-summary').textContent}`);
+ syncRunControls();
+ if(run.done){pause();status(run.maxGenerations===0?'Solo se evaluó la población inicial. Aumenta el presupuesto para generar propuestas.':s.success?'Corrida terminada. Brecha dentro de la tolerancia de éxito.':'Corrida terminada. La mejor solución conserva una brecha mayor que la tolerancia.');}
+ drawMap();drawCurves('convergence',[{trace:run.trace,color:colors.a}],run.effectiveBudget,$('compressed').checked);
+ $('convergence-caption').textContent=($('compressed').checked?'Escala vertical log(1 + brecha absoluta). ':'Escala vertical lineal. ')+`Brecha = f − f* (${gapUnit()}). Se cuentan las evaluaciones iniciales. La curva registra el mejor valor al cerrar cada generación.`;
+ renderOperator();
+}
+function advance(){if(!state.run||state.run.done)return;Engine.stepGeneration(state.run);renderRun();if(!state.run.done)status(`Generación ${state.run.generation}: ${state.run.lastTrials.filter(t=>t.accepted).length} propuestas aceptadas de ${state.run.config.np}.`);}
+function playTick(){if(!state.playing)return;advance();if(state.playing&&!state.run.done)state.timer=setTimeout(playTick,Number($('speed').value));}
+function togglePlay(){if(state.playing){pause();status('Corrida en pausa. Puedes continuar o avanzar una generación.');return;}if(state.run?.done)initRun();if(!state.run||state.run.done||$('play').disabled)return;state.playing=true;syncRunControls();status('La población avanza una generación a la vez.');state.timer=setTimeout(playTick,Number($('speed').value));}
+function prepareCanvas(id){const canvas=$(id),rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return null;const ratio=Math.min(window.devicePixelRatio||1,2),w=rect.width,h=rect.height;canvas.width=Math.round(w*ratio);canvas.height=Math.round(h*ratio);const ctx=canvas.getContext('2d');ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,w,h);ctx.font='11px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif';return {canvas,ctx,w,h};}
+function ramp(t){const stops=[[14,83,98],[109,150,150],[220,226,213],[255,240,199]],x=Math.max(0,Math.min(.999999,t))*3,i=Math.floor(x),f=x-i;return 'rgb('+stops[i].map((v,j)=>Math.round(v+(stops[i+1][j]-v)*f)).join(',')+')';}
+function heatmap(problem){if(heatmaps.has(problem.id))return heatmaps.get(problem.id);const off=document.createElement('canvas');off.width=320;off.height=240;const ctx=off.getContext('2d');const max=Math.log1p(problem.costRange[1]-problem.optimum.value);for(let y=0;y<off.height;y+=2)for(let x=0;x<off.width;x+=2){const val=problem.evaluate([x/(off.width-1),1-y/(off.height-1)]);ctx.fillStyle=ramp(Math.log1p(Math.max(0,val-problem.optimum.value))/max);ctx.fillRect(x,y,2,2);}heatmaps.set(problem.id,off);return off;}
+let mapGeometry=null;
+function drawMap(){const s=prepareCanvas('landscape');if(!s||!state.run)return;const {ctx,w,h}=s,p=state.problem,r=state.run;const margin={l:55,r:18,t:15,b:48},pw=w-margin.l-margin.r,ph=h-margin.t-margin.b;const xy=u=>[margin.l+u[0]*pw,margin.t+(1-u[1])*ph];mapGeometry={...margin,pw,ph};
+ ctx.imageSmoothingEnabled=false;ctx.drawImage(heatmap(p),margin.l,margin.t,pw,ph);
+ ctx.strokeStyle='#ffffff35';ctx.lineWidth=1;for(let i=0;i<=4;i++){let x=margin.l+i/4*pw,y=margin.t+i/4*ph;ctx.beginPath();ctx.moveTo(x,margin.t);ctx.lineTo(x,margin.t+ph);ctx.moveTo(margin.l,y);ctx.lineTo(margin.l+pw,y);ctx.stroke();}
+ ctx.strokeStyle='#91a9a1';ctx.strokeRect(margin.l,margin.t,pw,ph);
+ ctx.fillStyle=colors.muted;ctx.textAlign='center';for(let i=0;i<=4;i++){let value=p.bounds[0][0]+i/4*(p.bounds[0][1]-p.bounds[0][0]);ctx.fillText(fmt(value,p.id==='solar'?0:1),margin.l+i/4*pw,h-29);}
+ ctx.textAlign='right';for(let i=0;i<=4;i++){let value=p.bounds[1][0]+i/4*(p.bounds[1][1]-p.bounds[1][0]);ctx.fillText(fmt(value,p.id==='solar'?0:1),margin.l-9,margin.t+ph-i/4*ph+4);}
+ ctx.textAlign='center';ctx.font='12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial';ctx.fillText(p.labels[0],margin.l+pw/2,h-7);ctx.save();ctx.translate(13,margin.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText(p.labels[1],0,0);ctx.restore();
+ const [ox,oy]=xy(p.optimum.point);ctx.lineWidth=6;ctx.strokeStyle='white';ctx.beginPath();ctx.moveTo(ox-7,oy);ctx.lineTo(ox+7,oy);ctx.moveTo(ox,oy-7);ctx.lineTo(ox,oy+7);ctx.stroke();ctx.lineWidth=2.3;ctx.strokeStyle=colors.green;ctx.stroke();
+ r.population.forEach((point,i)=>{const [x,y]=xy(p.project(point));ctx.beginPath();ctx.arc(x,y,i===r.bestIndex?5.5:4,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#234a54';ctx.stroke();});
+ const [bx,by]=xy(p.project(r.bestPoint));ctx.beginPath();ctx.arc(bx,by,9,0,Math.PI*2);ctx.lineWidth=4;ctx.strokeStyle='white';ctx.stroke();ctx.lineWidth=2.5;ctx.strokeStyle=colors.b;ctx.stroke();
+}
+function plotTicks(max,compressed){
+ if(!compressed)return Array.from({length:5},(_,i)=>max*i/4);
+ const top=Math.ceil(Math.log10(max)),ticks=[0];
+ for(let exp=top-7;exp<=top;exp++)for(const m of [1,2,5]){const v=m*10**exp;if(v<=max)ticks.push(v);}
+ return ticks;
+}
+function axisNumber(v){return v===0?'0':v<.001?v.toExponential(1):Number(v).toLocaleString('es-MX',{maximumSignificantDigits:3});}
+function drawCurves(id,series,xmax,compressed=true){const s=prepareCanvas(id);if(!s)return;const {ctx,w,h}=s,m={l:61,r:16,t:22,b:39},plotw=w-m.l-m.r,ph=h-m.t-m.b;const samples=series.flatMap(a=>a.trace.map(t=>absoluteGap(t.best))),largest=Math.max(0,...samples),ymax=largest>0?largest*1.08:1;
+ const tr=v=>compressed?Math.log1p(v):v,y=v=>m.t+ph-tr(v)/tr(ymax)*ph,x=v=>m.l+v/xmax*plotw;
+ ctx.textAlign='right';ctx.fillStyle=colors.muted;ctx.font='10px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial';let lastY=Infinity;
+ for(const tick of plotTicks(ymax,compressed)){const yy=y(tick);if(Math.abs(yy-lastY)<23&&tick!==0)continue;lastY=yy;ctx.strokeStyle=colors.grid;ctx.beginPath();ctx.moveTo(m.l,yy);ctx.lineTo(w-m.r,yy);ctx.stroke();ctx.fillText(axisNumber(tick),m.l-7,yy+3);}
+ ctx.strokeStyle='#99aaa4';ctx.beginPath();ctx.moveTo(m.l,m.t);ctx.lineTo(m.l,m.t+ph);ctx.lineTo(w-m.r,m.t+ph);ctx.stroke();ctx.textAlign='center';for(let i=0;i<=4;i++){const ev=Math.round(xmax*i/4);ctx.fillText(fmt(ev),x(ev),h-23);}ctx.fillText('Evaluaciones acumuladas',m.l+plotw/2,h-6);ctx.textAlign='left';ctx.fillText('Brecha absoluta · '+gapUnit(),m.l,12);
+ series.forEach(({trace,color},j)=>{ctx.setLineDash(j?[7,4]:[]);ctx.beginPath();trace.forEach((t,i)=>{if(!i)ctx.moveTo(x(t.evaluations),y(absoluteGap(t.best)));else{ctx.lineTo(x(t.evaluations),y(absoluteGap(trace[i-1].best)));ctx.lineTo(x(t.evaluations),y(absoluteGap(t.best)));}});ctx.lineWidth=2.2;ctx.strokeStyle=color;ctx.stroke();ctx.setLineDash([]);if(trace.length){const last=trace[trace.length-1];ctx.beginPath();ctx.arc(x(last.evaluations),y(absoluteGap(last.best)),3.5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}});
+}
+function renderOperator(){const t=state.run?.lastTrial;if(!t){$('operator-body').innerHTML='<p>Avanza una generación para inspeccionar la mutación, la cruza y la selección del individuo 1.</p>';return;}
+ const mask=t.crossMask;const names=t.r.map(i=>'X<sub>'+(i+1)+'</sub>');const units=state.problem.id==='solar'?'kW, kWh':'x₁, x₂';
+ $('operator-body').innerHTML=`<p>Individuo 1, generación ${t.generation}. Las posiciones corresponden al comienzo de esa generación. Coordenadas en ${units}.</p><div class="operator-grid"><div><h3>1. Mutación</h3><p class="formula">v = ${names[0]} + ${fmt(state.run.config.F,2)} (${names[1]} − ${names[2]})</p>${t.donorPoints.map((p,i)=>`<p>${names[i]} = ${vector(p)}</p>`).join('')}<p><strong>Mutante: ${vector(t.mutant)}</strong></p>${t.clipped?`<p class="hint">Propuesta original ${vector(t.rawMutant)}. Se recortó a los límites antes de la cruza.</p>`:''}</div><div><h3>2. Cruza</h3><p>Objetivo (individuo 1): ${vector(t.target)}</p><p>Sorteos = (${t.crossRand.map(v=>fmt(v,3)).join(', ')})</p><p>jrand = ${t.jrand+1}, la coordenada obligatoria.</p><p>u₁ viene ${mask[0]?'del mutante':'del objetivo'}.<br>u₂ viene ${mask[1]?'del mutante':'del objetivo'}.</p><p><strong>Punto de prueba: ${vector(t.trial)}</strong></p>${state.problem.id==='solar'?`<p class="hint">Diseño evaluado: (${state.problem.decode(t.trial).coords.map(v=>fmt(v,1)).join(', ')}), tras ajustar a módulos.</p>`:''}</div><div><h3>3. Selección</h3><p>Valor del objetivo: <strong>${money(t.targetCost)}</strong></p><p>Valor de la prueba: <strong>${money(t.trialCost)}</strong></p><p class="${t.accepted?'accepted':'rejected'}">${t.accepted?'Se acepta el punto de prueba.':'Se conserva el objetivo.'}</p><p class="hint">Se acepta si el costo es menor o igual. Tomar una coordenada del mutante no garantiza que cambie su valor ni que la propuesta sea mejor.</p></div></div>`;
+}
+function setProblem(){if(notesCase)saveNotes(false);$('export-preview').hidden=true;pause();state.batchId++;state.problem=problems[$('problem').value];state.comparison=null;
+ $('case-summary').textContent=state.problem.id==='solar'?'Diseña paneles y batería para una comunidad sin red. Objetivo: minimizar el costo anual.':'Un terreno artificial permite observar mínimos locales, diversidad y estancamiento.';
+ $('case-details').innerHTML=state.problem.id==='solar'?`<div><strong>Dos decisiones</strong><p>P: 0–20 kW de paneles, en módulos de 0.5 kW.<br>E: 0–60 kWh de batería, en módulos de 2 kWh.</p><p>El costo anualizado de equipos incluye una penalización por energía no suministrada. No impone cobertura total de la demanda.</p></div><div><strong>Referencia y alcance</strong><p>Mejor diseño de esta malla: 10 kW y 28 kWh, con ${money(state.problem.optimum.value)} al año. Son 1271 diseños con datos sintéticos y costos precalculados a décimas de dólar.</p><p>El mejor diseño permite unos 105 kWh no suministrados al año. No es un dimensionamiento validado para una instalación real.</p></div>`:`<div><strong>Función y dominio</strong><p>f(x₁, x₂) = g(x₁) + g(x₂)<br>g(t) = t⁴ − 4t² + t<br>−2.2 ≤ x₁, x₂ ≤ 2.2.</p><p>Esta función tiene cuatro mínimos locales. DE evalúa la función sin usar sus derivadas.</p></div><div><strong>Referencia y éxito</strong><p>Mínimo global: ${fmt(state.problem.optimum.value,6)}, cerca de (−1.473, −1.473).</p><p>Una corrida alcanza la referencia si su brecha absoluta es ≤ 0.01. La diversidad describe dispersión, no calidad.</p></div>`;
+ if(state.problem.description)$('case-summary').textContent=state.problem.description;
+ if(!['solar','terrain'].includes(state.problem.id)){const p=state.problem;$('case-details').innerHTML=`<div><strong>Función y dominio</strong><p class="model-formula">${escapeHTML(p.formula)}</p><p>${escapeHTML(p.domainText)}</p><p>Dominio elegido para este laboratorio; todas las funciones se muestran en dos dimensiones.</p></div><div><strong>Referencia y objetivo</strong><p>Mínimo global: ${escapeHTML(p.optimumText)}.</p><p>Éxito: brecha absoluta ≤ ${precise(p.successTolerance)}.</p><p>${escapeHTML(p.teachingNote)}</p></div>`;}
+ $('objective-summary').textContent=state.problem.id==='solar'?'Minimiza el costo anual. Referencia: 10 kW + 28 kWh; $3,285.6/año.':state.problem.formula;
+ $('objective-question').textContent=state.problem.teachingNote||'Observa qué cambia al modificar F, CR o NP con el mismo presupuesto.';
+ clearComparison();loadNotes(state.problem.id);initRun();updateCompareBudget();}
+function switchTab(tab){pause();state.tab=tab;document.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;});['explore','compare','activity'].forEach(t=>$('panel-'+t).hidden=t!==tab);requestAnimationFrame(renderVisible);}
+function renderVisible(){if(state.tab==='explore')renderRun();else if(state.tab==='compare'&&state.comparison)renderComparisonCharts();}
+function compareConfigs(){const budget=number('compare-budget',4,12000,true),seed=number('compare-seed',0,999999,true);return ['a','b'].map(prefix=>({np:number(prefix+'-np',4,60,true),F:number(prefix+'-f',0,2),CR:number(prefix+'-cr',0,1),seed,budgetMode:'evaluations',budget}));}
+function updateCompareBudget(){
+ try{const c=compareConfigs();c.forEach((v,i)=>{if(v.budget<v.np)throw new Error(`El límite debe ser al menos NP de ambas configuraciones (máximo actual: ${Math.max(...c.map(x=>x.np))}).`);const g=Math.floor(v.budget/v.np)-1,e=v.np*(g+1);$(['a','b'][i]+'-budget-note').textContent=`${g} generaciones completas · ${fmt(e)} evaluaciones`+(e!==v.budget?` · ${v.budget-e} sin usar`:'.')+(g===0?' Solo población inicial.':'');});
+ const changed=['np','F','CR'].filter(k=>c[0][k]!==c[1][k]);$('comparison-design-note').textContent=changed.length===0?'A y B son idénticas: con la misma semilla deben producir el mismo resultado.':changed.length===1?`Solo cambia ${changed[0]==='np'?'NP':changed[0]}. Puedes estudiar su efecto con este caso y presupuesto.`:`Cambian ${changed.map(k=>k==='np'?'NP':k).join(', ')}. No podrás atribuir el efecto a un único parámetro.`;
+ $('comparison-design-note').classList.toggle('comparison-warning',changed.length>1);$('compare-one').disabled=false;$('compare-status').textContent='';$('compare-status').classList.remove('error');
+ try{const n=number('repetitions',2,100,true);$('compare-many').textContent=`Comparar ${n} semillas`;$('compare-many').disabled=false;}catch(e){$('compare-many').disabled=true;$('compare-status').textContent=e.message;$('compare-status').classList.add('error');}
+ }catch(e){$('a-budget-note').textContent='';$('b-budget-note').textContent='';$('compare-one').disabled=true;$('compare-many').disabled=true;$('comparison-design-note').textContent='Corrige los parámetros para comparar.';$('compare-status').textContent=e.message;$('compare-status').classList.add('error');}
+}
+function clearComparison(){state.batchId++;state.comparison=null;$('compare-results').hidden=true;$('compare-empty').hidden=false;$('export-csv').disabled=true;$('compare-one').disabled=false;$('compare-many').disabled=false;$('compare-status').textContent='';$('compare-status').classList.remove('error');document.body.classList.remove('busy');}
+function applyPreset(key){clearComparison();const presets={F:[[20,.3,.7],[20,.9,.7]],CR:[[20,.6,0],[20,.6,1]],NP:[[8,.6,.7],[40,.6,.7]]};presets[key].forEach((v,i)=>{const p=i?'b':'a';$(p+'-np').value=v[0];$(p+'-f').value=v[1];$(p+'-cr').value=v[2];});$('compare-budget').value=240;document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('active',b.dataset.preset===key));updateCompareBudget();}
+const yieldUI=()=>new Promise(resolve=>setTimeout(resolve,0));
+async function runComparison(many){let configs,count,seed;try{configs=compareConfigs();count=many?number('repetitions',2,100,true):1;seed=number('compare-seed',0,999999,true);}catch(e){$('compare-status').textContent=e.message;$('compare-status').classList.add('error');return;}
+ clearComparison();const id=++state.batchId,problem=state.problem,rows=[],curves=[];$('compare-one').disabled=true;$('compare-many').disabled=true;document.body.classList.add('busy');
+ try{for(let k=0;k<count;k++){if(id!==state.batchId)return;const pair=[];for(let j=0;j<2;j++){const run=Engine.runToEnd(Engine.createRun(problem,{...configs[j],seed:seed+k}));pair.push(Engine.summarize(run));if(k===0)curves.push(run.trace);}rows.push({seed:seed+k,a:pair[0],b:pair[1]});$('compare-status').textContent=`Comparando ${k+1} de ${count} semillas…`;if(k%3===0)await yieldUI();}
+ if(id!==state.batchId)return;state.comparison={problemId:problem.id,configs,rows,curves,count,seed,budget:configs[0].budget,created:new Date().toISOString()};$('compare-status').textContent=`${count} semilla${count===1?'':'s'} comparada${count===1?'':'s'}.`;$('export-csv').disabled=false;renderComparison();
+ }catch(e){$('compare-status').textContent=e.message;$('compare-status').classList.add('error');}finally{if(id===state.batchId){$('compare-one').disabled=false;$('compare-many').disabled=false;document.body.classList.remove('busy');}}
+}
+function quantile(values,q){const s=[...values].sort((a,b)=>a-b),p=(s.length-1)*q,i=Math.floor(p);return s[i]+(s[Math.min(i+1,s.length-1)]-s[i])*(p-i);}
+function summaryFor(key){const rs=state.comparison.rows.map(r=>r[key]),vals=rs.map(r=>r.best),gaps=rs.map(r=>r.gap);return {runs:rs,median:quantile(vals,.5),q1:quantile(vals,.25),q3:quantile(vals,.75),medianGap:quantile(gaps,.5),min:Math.min(...vals),max:Math.max(...vals),success:rs.filter(r=>r.success).length,diversity:quantile(rs.map(r=>r.diversity*100),.5),unique:quantile(rs.map(r=>r.uniqueVisited),.5),evals:rs[0].evaluations,generations:rs[0].generations};}
+function renderComparison(){const c=state.comparison;if(!c)return;const a=summaryFor('a'),b=summaryFor('b');let aw=0,bw=0,ties=0;c.rows.forEach(r=>{const d=r.a.best-r.b.best;if(Math.abs(d)<=state.problem.successTolerance)ties++;else if(d<0)aw++;else bw++;});
+ $('comparison-config-summary').textContent=`${state.problem.name} · A: NP=${c.configs[0].np}, F=${c.configs[0].F}, CR=${c.configs[0].CR} · B: NP=${c.configs[1].np}, F=${c.configs[1].F}, CR=${c.configs[1].CR} · Límite ${c.budget} · Semillas ${c.seed}–${c.seed+c.count-1}`;
+ const intro=c.count===1?'Una semilla muestra un ejemplo, no un efecto general.':`En ${c.count} semillas, la mediana final fue <strong>${money(a.median)}</strong> para A y <strong>${money(b.median)}</strong> para B.`;
+ $('comparison-summary').innerHTML=`${intro} A terminó mejor en <strong>${aw}</strong> pares, B en <strong>${bw}</strong> y hubo <strong>${ties}</strong> empates prácticos.${a.evals!==b.evals?` Las evaluaciones efectivas difieren: A usó ${a.evals} y B ${b.evals}, por el cierre de generaciones completas.`:''}`;
+ const rows=[['Costo / valor final · mediana',money(a.median),money(b.median)],['50% central · Q1 a Q3',`${money(a.q1)} a ${money(a.q3)}`,`${money(b.q1)} a ${money(b.q3)}`],['Mejor a peor resultado',`${money(a.min)} a ${money(a.max)}`,`${money(b.min)} a ${money(b.max)}`],['Corridas que alcanzan la referencia',`${a.success}/${c.count} (${fmt(a.success/c.count*100,1)}%)`,`${b.success}/${c.count} (${fmt(b.success/c.count*100,1)}%)`],['Brecha absoluta · mediana',precise(a.medianGap),precise(b.medianGap)],['Evaluaciones por corrida',fmt(a.evals),fmt(b.evals)],['Generaciones por corrida',fmt(a.generations),fmt(b.generations)],['Diversidad final · mediana',fmt(a.diversity,2)+'%',fmt(b.diversity,2)+'%'],['Diseños distintos visitados · mediana',fmt(a.unique,1),fmt(b.unique,1)]];
+ $('results-table').querySelector('tbody').innerHTML=rows.map(r=>`<tr><th scope="row">${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+ $('success-definition').textContent=(state.problem.id==='solar'?'Éxito: alcanzar el menor costo de la tabla solar (tolerancia numérica 10⁻⁸).':`Éxito: brecha absoluta ≤ ${precise(state.problem.successTolerance)} respecto al mínimo de referencia.`)+` Semillas ${c.seed} a ${c.seed+c.count-1}. Q1–Q3 describe el 50% central, no un intervalo de confianza. Empate práctico: diferencia de valor final ≤ ${precise(state.problem.successTolerance)}, la tolerancia de este caso.`;
+ $('compare-empty').hidden=true;$('compare-results').hidden=false;rememberComparison();requestAnimationFrame(renderComparisonCharts);
+}
+function renderComparisonCharts(){const c=state.comparison;if(!c)return;drawCurves('comparison-curve',c.curves.map((trace,i)=>({trace,color:i?colors.b:colors.a})),c.budget,true);drawPaired();}
+function drawPaired(){const s=prepareCanvas('paired-chart');if(!s)return;const c=state.comparison,{ctx,w,h}=s,m={l:61,r:18,t:22,b:39},pw=w-m.l-m.r,ph=h-m.t-m.b,values=c.rows.flatMap(r=>[absoluteGap(r.a.best),absoluteGap(r.b.best)]),largest=Math.max(0,...values),max=largest>0?largest*1.1:1;const y=v=>m.t+ph-Math.log1p(v)/Math.log1p(max)*ph,x=i=>m.l+(c.count===1?.5:(i+.5)/c.count)*pw;ctx.font='10px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial';ctx.textAlign='right';ctx.fillStyle=colors.muted;let lastY=Infinity;for(const tick of plotTicks(max,true)){const yy=y(tick);if(Math.abs(yy-lastY)<21&&tick!==0)continue;lastY=yy;ctx.strokeStyle=colors.grid;ctx.beginPath();ctx.moveTo(m.l,yy);ctx.lineTo(w-m.r,yy);ctx.stroke();ctx.fillText(axisNumber(tick),m.l-7,yy+3);}c.rows.forEach((r,i)=>{const yy=[y(absoluteGap(r.a.best)),y(absoluteGap(r.b.best))],xx=x(i);ctx.strokeStyle='#a6b5ad';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx-2,yy[0]);ctx.lineTo(xx+2,yy[1]);ctx.stroke();ctx.beginPath();ctx.arc(xx-2,yy[0],3.5,0,Math.PI*2);ctx.fillStyle=colors.a;ctx.fill();ctx.fillStyle=colors.b;ctx.fillRect(xx-1.5,yy[1]-3.5,7,7);});ctx.textAlign='center';const indices=[...new Set([0,Math.floor((c.count-1)/2),c.count-1])];indices.forEach(i=>ctx.fillText(String(c.rows[i].seed),x(i),h-23));ctx.fillText('Semilla · A círculo, B cuadrado',m.l+pw/2,h-6);ctx.textAlign='left';ctx.fillText('Brecha absoluta · '+gapUnit(),m.l,12);}
+function download(name,text,mime){
+ $('export-title').textContent=name;$('export-content').value=text;$('export-preview').hidden=false;
+ $('export-explanation').textContent='Se solicitó la descarga. Si tu visor no la permite, selecciona el contenido y cópialo a un archivo de texto con el nombre indicado.';
+ try{const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(e){$('export-explanation').textContent='Este visor no permite la descarga directa. El contenido completo está disponible aquí para seleccionarlo y copiarlo.';}
+ $('export-preview').scrollIntoView({block:'nearest'});
+}
+function exportCSV(){const c=state.comparison;if(!c)return;const lines=[['caso','semilla','configuracion','NP','F','CR','limite_evaluaciones','evaluaciones','generaciones','mejor_valor','brecha_absoluta','exito','diversidad_normalizada','disenos_distintos','coordenada_1','coordenada_2']];c.rows.forEach(row=>['a','b'].forEach((key,i)=>{const r=row[key],conf=c.configs[i];lines.push([c.problemId,row.seed,key.toUpperCase(),conf.np,conf.F,conf.CR,c.budget,r.evaluations,r.generations,r.best,r.gap,r.success,r.diversity,r.uniqueVisited,...r.decoded.coords]);}));download('comparacion_de_'+c.problemId+'.csv','\uFEFF'+lines.map(row=>row.join(',')).join('\r\n'),'text/csv;charset=utf-8');$('compare-status').textContent='CSV preparado para descargar.';}
+const noteFields=['hypothesis','evidence','conclusion'];
+let notesCase=null,notebooks={};
+try{const parsed=JSON.parse(localStorage.getItem('de-lab-sesion36-notebooks-v2')||'{}');if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))notebooks=parsed;}catch(e){}
+try{const old=JSON.parse(localStorage.getItem('de-lab-sesion36-notes')||'{}');if(noteFields.some(k=>typeof old?.[k]==='string'&&old[k].trim())){$('legacy-notes').hidden=false;$('legacy-content').textContent=noteFields.map(k=>k.toUpperCase()+'\n'+(typeof old[k]==='string'?old[k]:'')).join('\n\n');}}catch(e){}
+function persistNotes(){try{localStorage.setItem('de-lab-sesion36-notebooks-v2',JSON.stringify(notebooks));return true;}catch(e){return false;}}
+function loadNotes(id){notesCase=id;const saved=notebooks[id]||{};noteFields.forEach(k=>$(k).value=typeof saved[k]==='string'?saved[k]:'');$('notes-case-label').textContent='Registro de: '+problems[id].name;$('notes-status').textContent='Las notas se conservan por caso.';}
+function saveNotes(notify=true){if(!notesCase)return;notebooks[notesCase]={...notebooks[notesCase],...Object.fromEntries(noteFields.map(k=>[k,$(k).value]))};const ok=persistNotes();if(notify)$('notes-status').textContent=ok?'Guardado para este caso en el navegador.':'Registro en memoria; descárgalo para conservarlo.';}
+function rememberComparison(){const c=state.comparison;if(!c)return;const description=c.configs.map((cfg,i)=>`${i?'B':'A'}: NP=${cfg.np}, F=${cfg.F}, CR=${cfg.CR}`).join('\n')+`\nLímite: ${c.budget} evaluaciones. Semillas: ${c.seed} a ${c.seed+c.count-1}.\n`+$('comparison-summary').textContent+'\n'+$('success-definition').textContent;notebooks[c.problemId]={...notebooks[c.problemId],experiment:description};persistNotes();}
+function downloadNotes(){saveNotes(false);const id=notesCase,entry=notebooks[id]||{};let content=`LABORATORIO DE EVOLUCIÓN DIFERENCIAL · v2\nCaso: ${problems[id].name}\n\nMI PREDICCIÓN\n${$('hypothesis').value}\n\nEVIDENCIA\n${$('evidence').value}\n\nCONCLUSIÓN Y LIMITACIÓN\n${$('conclusion').value}\n`;
+ if(typeof entry.experiment==='string')content+='\nÚLTIMA COMPARACIÓN REALIZADA EN ESTE CASO\n'+entry.experiment+'\n';download('mi_experimento_de_'+id+'.txt',content,'text/plain;charset=utf-8');$('notes-status').textContent='Registro preparado; contenido disponible en el panel de exportación.';
+}
+
+$('context-toggle').addEventListener('click',()=>{const open=$('case-details').hidden;$('case-details').hidden=!open;$('context-toggle').setAttribute('aria-expanded',open);$('context-toggle').innerHTML=(open?'Ocultar modelo':'Ver el modelo')+' <span aria-hidden="true">'+(open?'−':'＋')+'</span>';});
+$('problem').addEventListener('change',setProblem);
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+document.querySelector('.tabs').setAttribute('role','tablist');document.querySelector('.tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=['explore','compare','activity'],i=tabs.indexOf(state.tab),next=e.key==='Home'?0:e.key==='End'?2:(i+(e.key==='ArrowRight'?1:2))%3;switchTab(tabs[next]);$('tab-'+tabs[next]).focus();});
+['np','factor','cr'].forEach(id=>$(id).addEventListener('input',()=>initRun('Parámetros modificados. Población inicial reiniciada.')));
+$('stop-mode').addEventListener('change',()=>initRun('Criterio de paro modificado. Población inicial reiniciada.'));['generations','budget','seed'].forEach(id=>$(id).addEventListener('input',()=>initRun('Configuración modificada. Población inicial reiniciada.')));
+$('reset-defaults').addEventListener('click',()=>{Object.entries({np:10,factor:.5,cr:.5,seed:0,generations:20,budget:840,'stop-mode':'generations'}).forEach(([k,v])=>$(k).value=v);initRun('Valores de clase restablecidos.');});
+$('play').addEventListener('click',togglePlay);$('step').addEventListener('click',()=>{pause();advance();});$('finish').addEventListener('click',()=>{pause();if(state.run){Engine.runToEnd(state.run);renderRun();}});$('restart').addEventListener('click',()=>initRun('Misma configuración y semilla. La población inicial se repite.'));$('compressed').addEventListener('change',renderRun);
+$('use-in-compare').addEventListener('click',()=>{try{const cfg=settings();clearComparison();$('a-np').value=cfg.np;$('a-f').value=cfg.F;$('a-cr').value=cfg.CR;$('compare-seed').value=cfg.seed;$('compare-budget').value=state.run.effectiveBudget;document.querySelectorAll('[data-preset]').forEach(b=>b.classList.remove('active'));updateCompareBudget();switchTab('compare');}catch(e){status(e.message,true);}});
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
+['a-np','a-f','a-cr','b-np','b-f','b-cr','compare-budget','compare-seed','repetitions'].forEach(id=>$(id).addEventListener('input',()=>{clearComparison();document.querySelectorAll('[data-preset]').forEach(b=>b.classList.remove('active'));updateCompareBudget();}));
+$('compare-one').addEventListener('click',()=>runComparison(false));$('compare-many').addEventListener('click',()=>runComparison(true));$('export-csv').addEventListener('click',exportCSV);
+noteFields.forEach(k=>$(k).addEventListener('input',()=>saveNotes()));$('download-notes').addEventListener('click',downloadNotes);$('close-export').addEventListener('click',()=>{$('export-preview').hidden=true;});$('export-select').addEventListener('click',()=>{$('export-content').focus();$('export-content').select();});['budget-short','budget-long'].forEach((id,i)=>$(id).addEventListener('click',()=>{clearComparison();$('compare-budget').value=i?840:240;updateCompareBudget();}));
+$('landscape').addEventListener('pointermove',e=>{if(!mapGeometry)return;const rect=$('landscape').getBoundingClientRect(),g=mapGeometry,x=e.clientX-rect.left,y=e.clientY-rect.top;if(x<g.l||y<g.t||x>g.l+g.pw||y>g.t+g.ph){$('map-tooltip').hidden=true;return;}const u=[(x-g.l)/g.pw,1-(y-g.t)/g.ph],d=state.problem.decode(u),tt=$('map-tooltip');tt.textContent=state.problem.id==='solar'?`${fmt(d.x,1)} kW, ${fmt(d.y,0)} kWh · ${money(d.cost)}/año`:`(${fmt(d.x,2)}, ${fmt(d.y,2)}) · f = ${fmt(d.cost,3)}`;tt.hidden=false;tt.style.left=Math.max(2,Math.min(x+12,rect.width-tt.offsetWidth-4))+'px';tt.style.top=Math.max(2,y-36)+'px';});$('landscape').addEventListener('pointerleave',()=>$('map-tooltip').hidden=true);
+let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(renderVisible,80);});document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('pagehide',pause);
+setProblem();switchTab('explore');$('startup-status').hidden=true;
+})();
+</script>
+</body></html>
