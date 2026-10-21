@@ -12,9 +12,11 @@ La aplicación se creó en una carpeta nueva. El PDF original y las presentacion
 
 Las respuestas se guardan solo en el navegador cuando este permite almacenamiento local. El botón de descarga permite conservarlas si ese almacenamiento no está disponible. Las notas se separan por caso. Si el visor impide descargar, el panel de exportación muestra el texto completo para seleccionarlo y copiarlo. Las notas de la versión anterior se conservan aparte porque esa versión no guardaba a qué caso pertenecían.
 
-## Actividad para sustituir el ejercicio final — 8 a 10 minutos
+## Para explorar en casa (material opcional, sin entrega ni evaluación)
 
-1. **Predecir (1 min).** En parejas, elegir un parámetro y escribir qué esperan que ocurra. Conservar los demás parámetros.
+El ejercicio a mano de la sesión 36 se conserva; este laboratorio es un accesorio para revisarlo en casa. Una exploración completa toma de 8 a 10 minutos.
+
+1. **Predecir (1 min).** Elegir un parámetro y escribir qué esperan que ocurra. Conservar los demás parámetros.
 2. **Observar (3 min).** Ejecutar una comparación y mirar las curvas. Repetir con otra semilla: una sola corrida puede ser afortunada.
 3. **Repetir (2 min).** Ejecutar las 30 semillas, con límite de 240 evaluaciones por corrida. Comparar mediana, dispersión y proporción de éxito.
 4. **Explicar (2–4 min).** Citar dos cifras y una limitación. Si cambiaron NP, explicar por qué cambia el número de generaciones. Si hay tiempo, repetir con 840 evaluaciones: ¿se conserva la ventaja?
@@ -27,10 +29,10 @@ Preguntas para la discusión: ¿F más grande siempre ayuda? ¿Qué hace CR = 0 
 
 | Caso | Dominio usado | Mínimo de referencia | Qué observar |
 |---|---|---|---|
-| Sistema solar | P de 0 a 20 kW; E de 0 a 60 kWh, por módulos | 3285.6 en (10,28) | Redondeo, mesetas y decisiones discretas |
-| Terreno | [−2.2,2.2]² | −10.888384… cerca de (−1.473,−1.473) | Cuatro mínimos locales |
+| Caso solar | P de 0 a 20 kW; E de 0 a 60 kWh, por módulos | 3285.6 en (10,28) | Redondeo, mesetas y decisiones discretas |
+| Cerro | [−2.2,2.2]² | −10.888384… cerca de (−1.473,−1.473) | Cuatro mínimos locales |
 | Esfera | [−5,5]² | 0 en (0,0) | Convergencia sobre una superficie sencilla |
-| Rosenbrock | x₁ en [−2,2]; x₂ en [−1,3] | 0 en (1,1) | Variables acopladas y valle estrecho |
+| Rosenbrock | x₁ en [−2,2]; x₂ en [−1,3] | 0 en (1,1) | Variables acopladas y una cañada estrecha |
 | Rastrigin | [−5.12,5.12]² | 0 en (0,0) | Muchos mínimos locales |
 | Ackley | [−5,5]² | 0 en (0,0) | Un pozo central rodeado de ondulaciones |
 
@@ -38,13 +40,13 @@ Cada caso muestra su fórmula, dominio y orientación didáctica. Las cuatro fun
 
 Referencias: biblioteca de Surjanovic y Bingham, Simon Fraser University: [Esfera](https://www.sfu.ca/~ssurjano/spheref.html), [Rosenbrock](https://www.sfu.ca/~ssurjano/rosen.html), [Rastrigin](https://www.sfu.ca/~ssurjano/rastr.html) y [Ackley](https://www.sfu.ca/~ssurjano/ackley.html). Las implementaciones del laboratorio están escritas para esta aplicación.
 
-Para una segunda actividad, conserva A, B y el presupuesto y cambia de Esfera a Rastrigin. Compara qué configuración conserva su ventaja. La magnitud de la brecha tiene las unidades de cada objetivo: no debe compararse directamente entre funciones diferentes.
+Para una segunda exploración, conserva A, B y el presupuesto y cambia de Esfera a Rastrigin. Compara qué configuración conserva su ventaja. La magnitud de la brecha tiene las unidades de cada objetivo: no debe compararse directamente entre funciones diferentes.
 
 ## Convenciones
 
-**Sistema solar con batería.** Usa los datos sintéticos de la sesión: 41 tamaños de paneles por 31 tamaños de batería, 1271 diseños. Cada propuesta consulta una tabla de costos, almacenados a décimas de dólar. Su referencia es 10 kW de paneles y 28 kWh de batería, con costo anual de 3285.6 dólares. El modelo penaliza energía no suministrada; no exige abastecer toda la demanda.
+**El caso solar (comunidad sin red).** Usa los datos sintéticos de la sesión: 41 tamaños de paneles por 31 tamaños de batería, 1271 diseños. Cada propuesta consulta una tabla de costos, almacenados a décimas de dólar. Su referencia es 10 kW de paneles y 28 kWh de batería, con costo anual de 3285.6 dólares. El modelo penaliza energía no suministrada; no exige abastecer toda la demanda.
 
-**Terreno con cuatro mínimos.** Usa `f(x₁,x₂) = g(x₁) + g(x₂)`, donde `g(t) = t⁴ − 4t² + t`, en `[-2.2, 2.2]²`. La referencia global está cerca de `(-1.473, -1.473)`, con valor `-10.888384`. Se considera éxito una brecha absoluta de hasta `0.01`.
+**Cerro con cuatro mínimos locales.** Usa `f(x₁,x₂) = g(x₁) + g(x₂)`, donde `g(t) = t⁴ − 4t² + t`, en `[-2.2, 2.2]²`. La referencia global está cerca de `(-1.473, -1.473)`, con valor `-10.888384`. Se considera éxito una brecha absoluta de hasta `0.01`.
 
 Se implementa **DE/rand/1/bin** con actualización generacional, tres donantes distintos que excluyen al objetivo, recorte del mutante antes de la cruza, una coordenada obligatoria y aceptación de costo menor o igual. En el caso solar, las posiciones se mantienen continuas y se redondean a módulos al evaluar; los empates exactos se resuelven al índice par, como `np.rint` en el modelo de Python.
 

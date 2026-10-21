@@ -34,11 +34,11 @@
 <main class="wrap">
 <div class="startup-message" id="startup-status" role="status">Preparando el laboratorio. Si este mensaje permanece y los controles no responden, abre el archivo HTML en un navegador con JavaScript habilitado.</div>
 <noscript><p class="startup-message">Este laboratorio necesita JavaScript. Abre el archivo en un navegador que permita ejecutarlo.</p></noscript>
-<section class="intro"><div><p class="eyebrow">OPTIMIZACIÓN SIN DERIVADAS</p><h1>¿Qué cambia cuando ajustas el método?</h1><p class="lead">Explora una población. Compara parámetros. Contrasta tu predicción con varias corridas.</p></div><label class="case-select" for="problem">Caso o función objetivo<select id="problem"><option value="solar">Sistema solar con batería</option><option value="terrain">Terreno con cuatro mínimos</option><option value="sphere">Esfera · un mínimo</option><option value="rosenbrock">Rosenbrock · valle estrecho</option><option value="rastrigin">Rastrigin · muchos mínimos</option><option value="ackley">Ackley · pozo central</option></select></label></section>
+<section class="intro"><div><p class="eyebrow">OPTIMIZACIÓN SIN DERIVADAS</p><h1>¿Qué cambia cuando ajustas el método?</h1><p class="lead">Explora una población. Compara parámetros. Contrasta tu predicción con varias corridas.</p></div><label class="case-select" for="problem">Caso o función objetivo<select id="problem"><option value="solar">El caso solar (comunidad sin red)</option><option value="terrain">Cerro con cuatro mínimos locales</option><option value="sphere">Esfera · un mínimo</option><option value="rosenbrock">Rosenbrock · variables acopladas</option><option value="rastrigin">Rastrigin · muchos mínimos</option><option value="ackley">Ackley · pozo central</option></select></label></section>
 <div class="context-strip"><span id="case-summary"></span><button class="text-button" id="context-toggle" aria-expanded="false" aria-controls="case-details">Ver el modelo <span aria-hidden="true">＋</span></button></div>
 <section class="objective-card" aria-label="Función objetivo"><p id="objective-summary"></p><p id="objective-question" class="hint"></p></section>
 <section id="case-details" class="model-details" hidden></section>
-<nav class="tabs" aria-label="Vistas del laboratorio"><button class="tab active" role="tab" id="tab-explore" aria-selected="true" aria-controls="panel-explore" data-tab="explore">01 <span>Explorar</span></button><button class="tab" role="tab" id="tab-compare" aria-selected="false" aria-controls="panel-compare" data-tab="compare">02 <span>Comparar</span></button><button class="tab" role="tab" id="tab-activity" aria-selected="false" aria-controls="panel-activity" data-tab="activity">03 <span>Actividad de clase</span></button></nav>
+<nav class="tabs" aria-label="Vistas del laboratorio"><button class="tab active" role="tab" id="tab-explore" aria-selected="true" aria-controls="panel-explore" data-tab="explore">01 <span>Explorar</span></button><button class="tab" role="tab" id="tab-compare" aria-selected="false" aria-controls="panel-compare" data-tab="compare">02 <span>Comparar</span></button><button class="tab" role="tab" id="tab-activity" aria-selected="false" aria-controls="panel-activity" data-tab="activity">03 <span>Para explorar en casa</span></button></nav>
 <section id="panel-explore" role="tabpanel" aria-labelledby="tab-explore">
 <div class="explore-grid">
 <aside class="controls panel"><div class="panel-heading"><h2>Una corrida</h2><button class="text-button" id="reset-defaults">Restablecer</button></div>
@@ -69,7 +69,7 @@
 <div id="compare-results" hidden><p class="config-summary" id="comparison-config-summary"></p><div class="result-summary" id="comparison-summary"></div><div class="compare-chart-grid"><section class="panel"><div class="panel-heading"><h3>Una corrida con la semilla inicial</h3><span class="ab-legend"><b>A</b><b>B</b></span></div><canvas id="comparison-curve" role="img" aria-label="Progreso de A y B frente a evaluaciones para la primera semilla"></canvas><p class="chart-caption">A: línea continua. B: línea discontinua. Estas curvas muestran la primera semilla, al cierre de cada generación. La tabla resume todas las repeticiones.</p></section><section class="panel"><div class="panel-heading"><h3>Brecha final por semilla</h3><span class="ab-legend"><b>A</b><b>B</b></span></div><canvas id="paired-chart" role="img" aria-label="Resultados finales emparejados por semilla"></canvas><p class="chart-caption">Cada par usa la misma semilla. Menor brecha es mejor. Escala log(1 + brecha absoluta). La brecha tiene las unidades de la función; no compares su magnitud entre funciones distintas.</p></section></div><div class="panel results-table-wrap"><table id="results-table"><caption>Resumen de la comparación</caption><thead><tr><th scope="col">Métrica</th><th scope="col">A</th><th scope="col">B</th></tr></thead><tbody></tbody></table><p class="hint" id="success-definition"></p></div><p class="comparison-caveat">Un resultado observado en este modelo y presupuesto no garantiza el mismo comportamiento en otro problema.</p></div>
 </section>
 <section id="panel-activity" role="tabpanel" aria-labelledby="tab-activity" hidden>
-<div class="activity-header"><p class="eyebrow">TRABAJO EN PAREJAS · 8–10 MINUTOS</p><h2>Una hipótesis, un cambio y evidencia</h2><p>Sustituye el ejercicio final por un experimento. Conserva el caso, el presupuesto y las semillas al comparar.</p></div>
+<div class="activity-header"><p class="eyebrow">MATERIAL OPCIONAL · EN CASA</p><h2>Una hipótesis, un cambio y evidencia</h2><p>Un experimento para la casa, sin entrega ni evaluación. Conserva el caso, el presupuesto y las semillas al comparar.</p></div>
 <div class="activity-grid"><ol class="activity-steps"><li><span class="minute">1 min</span><h3>Predice</h3><p>Elige F, CR o NP. Escribe qué esperas observar y por qué. No elijas una semilla porque dé el resultado que buscas.</p></li><li><span class="minute">3 min</span><h3>Observa y compara</h3><p>Ejecuta A y B con una semilla. Mira la curva por evaluaciones. Prueba otra semilla y comprueba si tu impresión se mantiene.</p></li><li><span class="minute">2 min</span><h3>Repite 30 veces</h3><p>Compara la mediana, la variación entre semillas y el porcentaje de corridas que alcanza la referencia. Si hay tiempo, repite con 840 evaluaciones.</p></li><li><span class="minute">2–4 min</span><h3>Explica el resultado</h3><p>Usa dos cifras de la tabla. Si cambiaste NP, explica por qué cambió el número de generaciones. Indica una limitación de tu conclusión.</p></li></ol><section class="panel response-sheet"><h3>Tu registro del experimento</h3><p id="notes-case-label" class="note-case"></p><p class="hint">Se conserva por caso en este navegador cuando hay almacenamiento local. Puedes descargarlo o copiarlo.</p><label for="hypothesis">Mi predicción<textarea id="hypothesis" rows="3" placeholder="Creo que cambiar… producirá… porque…"></textarea></label><label for="evidence">La evidencia<textarea id="evidence" rows="4" placeholder="Con el mismo presupuesto, A obtuvo… y B… La mediana y la dispersión muestran…"></textarea></label><label for="conclusion">Mi conclusión y una limitación<textarea id="conclusion" rows="4" placeholder="La comparación apoya / no apoya… No sabemos si ocurriría lo mismo con…"></textarea></label><button class="button primary" id="download-notes">Descargar mi registro</button><span id="notes-status" aria-live="polite"></span></section></div>
 <details id="legacy-notes" class="panel legacy-notes" hidden><summary>Registro recuperado de la versión anterior</summary><p>La versión anterior no guardaba el caso asociado. Este texto se conserva para que puedas revisarlo y trasladarlo al caso correcto.</p><pre id="legacy-content"></pre></details>
 <section class="takeaways"><h3>Preguntas para la puesta en común</h3><p>¿Se conserva la ventaja al pasar de Esfera a Rastrigin? ¿F más grande siempre mejora más? ¿Por qué CR = 0 todavía puede generar una propuesta? ¿Una población mayor fue mejor con el mismo límite de evaluaciones? ¿Qué cambiaría si cada evaluación tardara dos horas?</p></section>
@@ -166,7 +166,7 @@
     }
     const optimumPoint = [bestIJ[0] / (xs.length - 1), bestIJ[1] / (ys.length - 1)];
     return {
-      id: "solar", name: "Sistema solar con batería", dimension: 2,
+      id: "solar", name: "El caso solar (comunidad sin red)", dimension: 2,
       bounds: [[xs[0], xs[xs.length - 1]], [ys[0], ys[ys.length - 1]]],
       labels: ["Potencia solar P (kW)", "Capacidad de batería E (kWh)"],
       xValues: xs, yValues: ys, costs, gridSize: [xs.length, ys.length],
@@ -208,7 +208,7 @@
     const optimumPoint = [(minimizer - lo) / width, (minimizer - lo) / width];
     const minimum = 2 * g(minimizer);
     return {
-      id: "terrain", name: "Terreno de cuatro valles", dimension: 2,
+      id: "terrain", name: "Cerro con cuatro mínimos locales", dimension: 2,
       bounds: [[lo, hi], [lo, hi]], labels: ["x₁", "x₂"],
       formula: "f(x₁,x₂) = (x₁⁴ − 4x₁² + x₁) + (x₂⁴ − 4x₂² + x₂)",
       costRange: [minimum, maximum], totalDesigns: null,
@@ -233,10 +233,10 @@
       },
       rosenbrock: {
         name: "Rosenbrock", bounds: [[-2, 2], [-1, 3]], minimum: [1, 1], maximumBound: 2509,
-        description: "Un valle estrecho y curvo conduce al mínimo global; las variables están acopladas.",
+        description: "Una cañada estrecha y curva conduce al mínimo global; las variables están acopladas.",
         formula: "f(x₁,x₂) = (1 − x₁)² + 100(x₂ − x₁²)²",
         domainText: "x₁ ∈ [−2, 2]; x₂ ∈ [−1, 3]", optimumText: "(1, 1), f = 0",
-        teachingNote: "Compara CR bajo y alto: combinar las coordenadas afecta el avance a lo largo del valle. Aumenta el presupuesto para observar el afinamiento.",
+        teachingNote: "Compara CR bajo y alto: combinar las coordenadas afecta el avance a lo largo de la cañada. Aumenta el presupuesto para observar el afinamiento.",
         objective: (x, y) => (1 - x) ** 2 + 100 * (y - x * x) ** 2
       },
       rastrigin: {

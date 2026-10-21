@@ -86,7 +86,7 @@
     }
     const optimumPoint = [bestIJ[0] / (xs.length - 1), bestIJ[1] / (ys.length - 1)];
     return {
-      id: "solar", name: "Sistema solar con batería", dimension: 2,
+      id: "solar", name: "El caso solar (comunidad sin red)", dimension: 2,
       bounds: [[xs[0], xs[xs.length - 1]], [ys[0], ys[ys.length - 1]]],
       labels: ["Potencia solar P (kW)", "Capacidad de batería E (kWh)"],
       xValues: xs, yValues: ys, costs, gridSize: [xs.length, ys.length],
@@ -128,7 +128,7 @@
     const optimumPoint = [(minimizer - lo) / width, (minimizer - lo) / width];
     const minimum = 2 * g(minimizer);
     return {
-      id: "terrain", name: "Terreno de cuatro valles", dimension: 2,
+      id: "terrain", name: "Cerro con cuatro mínimos locales", dimension: 2,
       bounds: [[lo, hi], [lo, hi]], labels: ["x₁", "x₂"],
       formula: "f(x₁,x₂) = (x₁⁴ − 4x₁² + x₁) + (x₂⁴ − 4x₂² + x₂)",
       costRange: [minimum, maximum], totalDesigns: null,
@@ -153,10 +153,10 @@
       },
       rosenbrock: {
         name: "Rosenbrock", bounds: [[-2, 2], [-1, 3]], minimum: [1, 1], maximumBound: 2509,
-        description: "Un valle estrecho y curvo conduce al mínimo global; las variables están acopladas.",
+        description: "Una cañada estrecha y curva conduce al mínimo global; las variables están acopladas.",
         formula: "f(x₁,x₂) = (1 − x₁)² + 100(x₂ − x₁²)²",
         domainText: "x₁ ∈ [−2, 2]; x₂ ∈ [−1, 3]", optimumText: "(1, 1), f = 0",
-        teachingNote: "Compara CR bajo y alto: combinar las coordenadas afecta el avance a lo largo del valle. Aumenta el presupuesto para observar el afinamiento.",
+        teachingNote: "Compara CR bajo y alto: combinar las coordenadas afecta el avance a lo largo de la cañada. Aumenta el presupuesto para observar el afinamiento.",
         objective: (x, y) => (1 - x) ** 2 + 100 * (y - x * x) ** 2
       },
       rastrigin: {
