@@ -1,170 +1,262 @@
-(function () {
-'use strict';
-const $ = id => document.getElementById(id);
-const Engine = window.DELabEngine;
-const solarData = JSON.parse($('solar-data').textContent);
-const problems = {solar: Engine.createSolarProblem(solarData), terrain: Engine.createTerrainProblem(), ...Object.fromEntries(['sphere','rosenbrock','rastrigin','ackley'].map(id=>[id,Engine.createBenchmarkProblem(id)]))};
-const colors = {a:'#0f4c5c', b:'#ad5429', ink:'#20343a', muted:'#61747a', grid:'#e0e7e2', green:'#45684e'};
-const state = {problem:problems.solar,run:null,timer:null,playing:false,tab:'explore',comparison:null,batchId:0};
-const heatmaps = new Map();
-const fmt = (x,d=0) => Number(x).toLocaleString('es-MX',{minimumFractionDigits:d,maximumFractionDigits:d});
-const absoluteGap = value => Math.max(0,value-state.problem.optimum.value);
-const precise = value => {const a=Math.abs(value);return a===0?'0':(a<0.001?Number(value).toExponential(3):Number(value).toLocaleString('es-MX',{maximumSignificantDigits:9}));};
-const gapUnit = () => state.problem.id==='solar'?'dólares/año':'unidades de f';
-const escapeHTML = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money = (value,d=1) => state.problem.id==='solar' ? '$'+fmt(value,d) : precise(value);
-const physical = p => p.map((v,j)=>state.problem.bounds[j][0]+v*(state.problem.bounds[j][1]-state.problem.bounds[j][0]));
-const vector = (p,d=2) => '('+physical(p).map(v=>fmt(v,d)).join(', ')+')';
-function number(id,min,max,integer=false){
- const el=$(id), value=Number(el.value);
- if(el.value.trim()==='' || !Number.isFinite(value) || value<min || value>max || (integer&&!Number.isInteger(value))){
-  el.setAttribute('aria-invalid','true');throw new Error(`${el.labels?.[0]?.textContent?.trim()||id}: usa ${integer?'un entero':'un valor'} entre ${min} y ${max}.`);
- }
- el.removeAttribute('aria-invalid');return value;
-}
-function settings(){const budgetMode=$('stop-mode').value;return {np:number('np',4,60,true),F:number('factor',0,2),CR:number('cr',0,1),seed:number('seed',0,999999,true),budgetMode,generations:budgetMode==='generations'?number('generations',1,200,true):20,budget:budgetMode==='evaluations'?number('budget',4,12000,true):840};}
-function status(text,error=false){$('run-status').textContent=text;$('run-status').classList.toggle('error',error);}
-function syncRunControls(){const r=state.run,initialOnly=r&&r.maxGenerations===0;
- $('play').disabled=!r||initialOnly;$('step').disabled=!r||r.done;$('finish').disabled=!r||r.done;
- $('play').textContent=initialOnly?'Sin generaciones':state.playing?'Pausar':r?.done?'Volver a correr':r?.generation?'Continuar':'Iniciar';
-}
-function pause(){if(state.timer)clearTimeout(state.timer);state.timer=null;state.playing=false;syncRunControls();}
-function initRun(message='Población inicial lista. La semilla permite repetirla.'){
- pause();$('generations-field').hidden=$('stop-mode').value==='evaluations';$('budget-field').hidden=$('stop-mode').value!=='evaluations';try{
-  state.run=Engine.createRun(state.problem,settings());
-  ['play','step','finish'].forEach(id=>$(id).disabled=false);
-  $('np-out').value=$('np').value;$('factor-out').value=fmt(Number($('factor').value),2);$('cr-out').value=fmt(Number($('cr').value),2);
-  const inherited=(1+Number($('cr').value))/2*100;
-  $('cr-help').textContent=`En 2D, se toma del mutante un ${fmt(inherited,0)}% de las coordenadas en promedio. jrand obliga al menos una.`;
-  $('generations-field').hidden=$('stop-mode').value==='evaluations';$('budget-field').hidden=$('stop-mode').value!=='evaluations';
-  $('budget-note').textContent=`${fmt(state.run.effectiveBudget)} evaluaciones = ${state.run.config.np} iniciales + ${state.run.maxGenerations} generaciones × ${state.run.config.np}.`+(state.run.requestedBudget!==state.run.effectiveBudget?` Quedan ${state.run.requestedBudget-state.run.effectiveBudget} sin usar: solo generaciones completas.`:'');
-  status(message);renderRun();
- }catch(e){state.run=null;status(e.message,true);['play','step','finish'].forEach(id=>$(id).disabled=true);$('run-metrics').innerHTML='';$('generation-label').textContent='Corrige la configuración';$('budget-note').textContent='';$('map-summary').textContent='Introduce valores válidos para iniciar una corrida.';$('landscape').setAttribute('aria-label','Mapa pendiente de una configuración válida.');$('map-tooltip').hidden=true;$('convergence-caption').textContent='Corrige la configuración para dibujar la trayectoria.';['landscape','convergence'].forEach(id=>prepareCanvas(id));mapGeometry=null;renderOperator();}
-}
-function renderRun(){
- const run=state.run;if(!run)return;const s=Engine.summarize(run), d=s.decoded;
- const design=state.problem.id==='solar'?`${fmt(d.P_kW,1)} kW + ${fmt(d.E_kWh,0)} kWh`:`(${fmt(d.x,2)}, ${fmt(d.y,2)})`;
- const metrics=[['Mejor valor',money(s.best),state.problem.id==='solar'?'dólares por año':'valor de f'],['Brecha absoluta',precise(s.gap),gapUnit()],['Evaluaciones',fmt(s.evaluations),`de ${fmt(run.effectiveBudget)} previstas`],['Diversidad',fmt(s.diversity*100,1)+'%','dispersión normalizada']];
- $('run-metrics').innerHTML=metrics.map(([label,value,sub])=>`<div class="metric"><span class="metric-label">${label}</span><strong>${value}</strong><small>${sub}</small></div>`).join('');
- $('generation-label').textContent=`Generación ${run.generation} / ${run.maxGenerations}`;
- const uniqueNow=new Set(run.population.map(p=>state.problem.key(p))).size;
- $('map-summary').textContent=`Mejor actual: ${design}. ${uniqueNow} ${uniqueNow===1?'posición evaluada distinta':'posiciones evaluadas distintas'} en esta población; ${s.uniqueVisited} visitadas en la corrida. El mapa es una referencia didáctica; DE solo consulta sus propuestas.`;
- $('landscape').setAttribute('aria-label',`Población de ${run.config.np} individuos. ${$('map-summary').textContent}`);
- syncRunControls();
- if(run.done){pause();status(run.maxGenerations===0?'Solo se evaluó la población inicial. Aumenta el presupuesto para generar propuestas.':s.success?'Corrida terminada. Brecha dentro de la tolerancia de éxito.':'Corrida terminada. La mejor solución conserva una brecha mayor que la tolerancia.');}
- drawMap();drawCurves('convergence',[{trace:run.trace,color:colors.a}],run.effectiveBudget,$('compressed').checked);
- $('convergence-caption').textContent=($('compressed').checked?'Escala vertical log(1 + brecha absoluta). ':'Escala vertical lineal. ')+`Brecha = f − f* (${gapUnit()}). Se cuentan las evaluaciones iniciales. La curva registra el mejor valor al cerrar cada generación.`;
- renderOperator();
-}
-function advance(){if(!state.run||state.run.done)return;Engine.stepGeneration(state.run);renderRun();if(!state.run.done)status(`Generación ${state.run.generation}: ${state.run.lastTrials.filter(t=>t.accepted).length} propuestas aceptadas de ${state.run.config.np}.`);}
-function playTick(){if(!state.playing)return;advance();if(state.playing&&!state.run.done)state.timer=setTimeout(playTick,Number($('speed').value));}
-function togglePlay(){if(state.playing){pause();status('Corrida en pausa. Puedes continuar o avanzar una generación.');return;}if(state.run?.done)initRun();if(!state.run||state.run.done||$('play').disabled)return;state.playing=true;syncRunControls();status('La población avanza una generación a la vez.');state.timer=setTimeout(playTick,Number($('speed').value));}
-function prepareCanvas(id){const canvas=$(id),rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return null;const ratio=Math.min(window.devicePixelRatio||1,2),w=rect.width,h=rect.height;canvas.width=Math.round(w*ratio);canvas.height=Math.round(h*ratio);const ctx=canvas.getContext('2d');ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,w,h);ctx.font='11px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif';return {canvas,ctx,w,h};}
-function ramp(t){const stops=[[14,83,98],[109,150,150],[220,226,213],[255,240,199]],x=Math.max(0,Math.min(.999999,t))*3,i=Math.floor(x),f=x-i;return 'rgb('+stops[i].map((v,j)=>Math.round(v+(stops[i+1][j]-v)*f)).join(',')+')';}
-function heatmap(problem){if(heatmaps.has(problem.id))return heatmaps.get(problem.id);const off=document.createElement('canvas');off.width=320;off.height=240;const ctx=off.getContext('2d');const max=Math.log1p(problem.costRange[1]-problem.optimum.value);for(let y=0;y<off.height;y+=2)for(let x=0;x<off.width;x+=2){const val=problem.evaluate([x/(off.width-1),1-y/(off.height-1)]);ctx.fillStyle=ramp(Math.log1p(Math.max(0,val-problem.optimum.value))/max);ctx.fillRect(x,y,2,2);}heatmaps.set(problem.id,off);return off;}
-let mapGeometry=null;
-function drawMap(){const s=prepareCanvas('landscape');if(!s||!state.run)return;const {ctx,w,h}=s,p=state.problem,r=state.run;const margin={l:55,r:18,t:15,b:48},pw=w-margin.l-margin.r,ph=h-margin.t-margin.b;const xy=u=>[margin.l+u[0]*pw,margin.t+(1-u[1])*ph];mapGeometry={...margin,pw,ph};
- ctx.imageSmoothingEnabled=false;ctx.drawImage(heatmap(p),margin.l,margin.t,pw,ph);
- ctx.strokeStyle='#ffffff35';ctx.lineWidth=1;for(let i=0;i<=4;i++){let x=margin.l+i/4*pw,y=margin.t+i/4*ph;ctx.beginPath();ctx.moveTo(x,margin.t);ctx.lineTo(x,margin.t+ph);ctx.moveTo(margin.l,y);ctx.lineTo(margin.l+pw,y);ctx.stroke();}
- ctx.strokeStyle='#91a9a1';ctx.strokeRect(margin.l,margin.t,pw,ph);
- ctx.fillStyle=colors.muted;ctx.textAlign='center';for(let i=0;i<=4;i++){let value=p.bounds[0][0]+i/4*(p.bounds[0][1]-p.bounds[0][0]);ctx.fillText(fmt(value,p.id==='solar'?0:1),margin.l+i/4*pw,h-29);}
- ctx.textAlign='right';for(let i=0;i<=4;i++){let value=p.bounds[1][0]+i/4*(p.bounds[1][1]-p.bounds[1][0]);ctx.fillText(fmt(value,p.id==='solar'?0:1),margin.l-9,margin.t+ph-i/4*ph+4);}
- ctx.textAlign='center';ctx.font='12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial';ctx.fillText(p.labels[0],margin.l+pw/2,h-7);ctx.save();ctx.translate(13,margin.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText(p.labels[1],0,0);ctx.restore();
- const [ox,oy]=xy(p.optimum.point);ctx.lineWidth=6;ctx.strokeStyle='white';ctx.beginPath();ctx.moveTo(ox-7,oy);ctx.lineTo(ox+7,oy);ctx.moveTo(ox,oy-7);ctx.lineTo(ox,oy+7);ctx.stroke();ctx.lineWidth=2.3;ctx.strokeStyle=colors.green;ctx.stroke();
- r.population.forEach((point,i)=>{const [x,y]=xy(p.project(point));ctx.beginPath();ctx.arc(x,y,i===r.bestIndex?5.5:4,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#234a54';ctx.stroke();});
- const [bx,by]=xy(p.project(r.bestPoint));ctx.beginPath();ctx.arc(bx,by,9,0,Math.PI*2);ctx.lineWidth=4;ctx.strokeStyle='white';ctx.stroke();ctx.lineWidth=2.5;ctx.strokeStyle=colors.b;ctx.stroke();
-}
-function plotTicks(max,compressed){
- if(!compressed)return Array.from({length:5},(_,i)=>max*i/4);
- const top=Math.ceil(Math.log10(max)),ticks=[0];
- for(let exp=top-7;exp<=top;exp++)for(const m of [1,2,5]){const v=m*10**exp;if(v<=max)ticks.push(v);}
- return ticks;
-}
-function axisNumber(v){return v===0?'0':v<.001?v.toExponential(1):Number(v).toLocaleString('es-MX',{maximumSignificantDigits:3});}
-function drawCurves(id,series,xmax,compressed=true){const s=prepareCanvas(id);if(!s)return;const {ctx,w,h}=s,m={l:61,r:16,t:22,b:39},plotw=w-m.l-m.r,ph=h-m.t-m.b;const samples=series.flatMap(a=>a.trace.map(t=>absoluteGap(t.best))),largest=Math.max(0,...samples),ymax=largest>0?largest*1.08:1;
- const tr=v=>compressed?Math.log1p(v):v,y=v=>m.t+ph-tr(v)/tr(ymax)*ph,x=v=>m.l+v/xmax*plotw;
- ctx.textAlign='right';ctx.fillStyle=colors.muted;ctx.font='10px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial';let lastY=Infinity;
- for(const tick of plotTicks(ymax,compressed)){const yy=y(tick);if(Math.abs(yy-lastY)<23&&tick!==0)continue;lastY=yy;ctx.strokeStyle=colors.grid;ctx.beginPath();ctx.moveTo(m.l,yy);ctx.lineTo(w-m.r,yy);ctx.stroke();ctx.fillText(axisNumber(tick),m.l-7,yy+3);}
- ctx.strokeStyle='#99aaa4';ctx.beginPath();ctx.moveTo(m.l,m.t);ctx.lineTo(m.l,m.t+ph);ctx.lineTo(w-m.r,m.t+ph);ctx.stroke();ctx.textAlign='center';for(let i=0;i<=4;i++){const ev=Math.round(xmax*i/4);ctx.fillText(fmt(ev),x(ev),h-23);}ctx.fillText('Evaluaciones acumuladas',m.l+plotw/2,h-6);ctx.textAlign='left';ctx.fillText('Brecha absoluta · '+gapUnit(),m.l,12);
- series.forEach(({trace,color},j)=>{ctx.setLineDash(j?[7,4]:[]);ctx.beginPath();trace.forEach((t,i)=>{if(!i)ctx.moveTo(x(t.evaluations),y(absoluteGap(t.best)));else{ctx.lineTo(x(t.evaluations),y(absoluteGap(trace[i-1].best)));ctx.lineTo(x(t.evaluations),y(absoluteGap(t.best)));}});ctx.lineWidth=2.2;ctx.strokeStyle=color;ctx.stroke();ctx.setLineDash([]);if(trace.length){const last=trace[trace.length-1];ctx.beginPath();ctx.arc(x(last.evaluations),y(absoluteGap(last.best)),3.5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}});
-}
-function renderOperator(){const t=state.run?.lastTrial;if(!t){$('operator-body').innerHTML='<p>Avanza una generación para inspeccionar la mutación, la cruza y la selección del individuo 1.</p>';return;}
- const mask=t.crossMask;const names=t.r.map(i=>'X<sub>'+(i+1)+'</sub>');const units=state.problem.id==='solar'?'kW, kWh':'x₁, x₂';
- $('operator-body').innerHTML=`<p>Individuo 1, generación ${t.generation}. Las posiciones corresponden al comienzo de esa generación. Coordenadas en ${units}.</p><div class="operator-grid"><div><h3>1. Mutación</h3><p class="formula">v = ${names[0]} + ${fmt(state.run.config.F,2)} (${names[1]} − ${names[2]})</p>${t.donorPoints.map((p,i)=>`<p>${names[i]} = ${vector(p)}</p>`).join('')}<p><strong>Mutante: ${vector(t.mutant)}</strong></p>${t.clipped?`<p class="hint">Propuesta original ${vector(t.rawMutant)}. Se recortó a los límites antes de la cruza.</p>`:''}</div><div><h3>2. Cruza</h3><p>Objetivo (individuo 1): ${vector(t.target)}</p><p>Sorteos = (${t.crossRand.map(v=>fmt(v,3)).join(', ')})</p><p>jrand = ${t.jrand+1}, la coordenada obligatoria.</p><p>u₁ viene ${mask[0]?'del mutante':'del objetivo'}.<br>u₂ viene ${mask[1]?'del mutante':'del objetivo'}.</p><p><strong>Punto de prueba: ${vector(t.trial)}</strong></p>${state.problem.id==='solar'?`<p class="hint">Diseño evaluado: (${state.problem.decode(t.trial).coords.map(v=>fmt(v,1)).join(', ')}), tras ajustar a módulos.</p>`:''}</div><div><h3>3. Selección</h3><p>Valor del objetivo: <strong>${money(t.targetCost)}</strong></p><p>Valor de la prueba: <strong>${money(t.trialCost)}</strong></p><p class="${t.accepted?'accepted':'rejected'}">${t.accepted?'Se acepta el punto de prueba.':'Se conserva el objetivo.'}</p><p class="hint">Se acepta si el costo es menor o igual. Tomar una coordenada del mutante no garantiza que cambie su valor ni que la propuesta sea mejor.</p></div></div>`;
-}
-function setProblem(){if(notesCase)saveNotes(false);$('export-preview').hidden=true;pause();state.batchId++;state.problem=problems[$('problem').value];state.comparison=null;
- $('case-summary').textContent=state.problem.id==='solar'?'Diseña paneles y batería para una comunidad sin red. Objetivo: minimizar el costo anual.':'Un terreno artificial permite observar mínimos locales, diversidad y estancamiento.';
- $('case-details').innerHTML=state.problem.id==='solar'?`<div><strong>Dos decisiones</strong><p>P: 0–20 kW de paneles, en módulos de 0.5 kW.<br>E: 0–60 kWh de batería, en módulos de 2 kWh.</p><p>El costo anualizado de equipos incluye una penalización por energía no suministrada. No impone cobertura total de la demanda.</p></div><div><strong>Referencia y alcance</strong><p>Mejor diseño de esta malla: 10 kW y 28 kWh, con ${money(state.problem.optimum.value)} al año. Son 1271 diseños con datos sintéticos y costos precalculados a décimas de dólar.</p><p>El mejor diseño permite unos 105 kWh no suministrados al año. No es un dimensionamiento validado para una instalación real.</p></div>`:`<div><strong>Función y dominio</strong><p>f(x₁, x₂) = g(x₁) + g(x₂)<br>g(t) = t⁴ − 4t² + t<br>−2.2 ≤ x₁, x₂ ≤ 2.2.</p><p>Esta función tiene cuatro mínimos locales. DE evalúa la función sin usar sus derivadas.</p></div><div><strong>Referencia y éxito</strong><p>Mínimo global: ${fmt(state.problem.optimum.value,6)}, cerca de (−1.473, −1.473).</p><p>Una corrida alcanza la referencia si su brecha absoluta es ≤ 0.01. La diversidad describe dispersión, no calidad.</p></div>`;
- if(state.problem.description)$('case-summary').textContent=state.problem.description;
- if(!['solar','terrain'].includes(state.problem.id)){const p=state.problem;$('case-details').innerHTML=`<div><strong>Función y dominio</strong><p class="model-formula">${escapeHTML(p.formula)}</p><p>${escapeHTML(p.domainText)}</p><p>Dominio elegido para este laboratorio; todas las funciones se muestran en dos dimensiones.</p></div><div><strong>Referencia y objetivo</strong><p>Mínimo global: ${escapeHTML(p.optimumText)}.</p><p>Éxito: brecha absoluta ≤ ${precise(p.successTolerance)}.</p><p>${escapeHTML(p.teachingNote)}</p></div>`;}
- $('objective-summary').textContent=state.problem.id==='solar'?'Minimiza el costo anual. Referencia: 10 kW + 28 kWh; $3,285.6/año.':state.problem.formula;
- $('objective-question').textContent=state.problem.teachingNote||'Observa qué cambia al modificar F, CR o NP con el mismo presupuesto.';
- clearComparison();loadNotes(state.problem.id);initRun();updateCompareBudget();}
-function switchTab(tab){pause();state.tab=tab;document.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;});['explore','compare','activity'].forEach(t=>$('panel-'+t).hidden=t!==tab);requestAnimationFrame(renderVisible);}
-function renderVisible(){if(state.tab==='explore')renderRun();else if(state.tab==='compare'&&state.comparison)renderComparisonCharts();}
-function compareConfigs(){const budget=number('compare-budget',4,12000,true),seed=number('compare-seed',0,999999,true);return ['a','b'].map(prefix=>({np:number(prefix+'-np',4,60,true),F:number(prefix+'-f',0,2),CR:number(prefix+'-cr',0,1),seed,budgetMode:'evaluations',budget}));}
-function updateCompareBudget(){
- try{const c=compareConfigs();c.forEach((v,i)=>{if(v.budget<v.np)throw new Error(`El límite debe ser al menos NP de ambas configuraciones (máximo actual: ${Math.max(...c.map(x=>x.np))}).`);const g=Math.floor(v.budget/v.np)-1,e=v.np*(g+1);$(['a','b'][i]+'-budget-note').textContent=`${g} generaciones completas · ${fmt(e)} evaluaciones`+(e!==v.budget?` · ${v.budget-e} sin usar`:'.')+(g===0?' Solo población inicial.':'');});
- const changed=['np','F','CR'].filter(k=>c[0][k]!==c[1][k]);$('comparison-design-note').textContent=changed.length===0?'A y B son idénticas: con la misma semilla deben producir el mismo resultado.':changed.length===1?`Solo cambia ${changed[0]==='np'?'NP':changed[0]}. Puedes estudiar su efecto con este caso y presupuesto.`:`Cambian ${changed.map(k=>k==='np'?'NP':k).join(', ')}. No podrás atribuir el efecto a un único parámetro.`;
- $('comparison-design-note').classList.toggle('comparison-warning',changed.length>1);$('compare-one').disabled=false;$('compare-status').textContent='';$('compare-status').classList.remove('error');
- try{const n=number('repetitions',2,100,true);$('compare-many').textContent=`Comparar ${n} semillas`;$('compare-many').disabled=false;}catch(e){$('compare-many').disabled=true;$('compare-status').textContent=e.message;$('compare-status').classList.add('error');}
- }catch(e){$('a-budget-note').textContent='';$('b-budget-note').textContent='';$('compare-one').disabled=true;$('compare-many').disabled=true;$('comparison-design-note').textContent='Corrige los parámetros para comparar.';$('compare-status').textContent=e.message;$('compare-status').classList.add('error');}
-}
-function clearComparison(){state.batchId++;state.comparison=null;$('compare-results').hidden=true;$('compare-empty').hidden=false;$('export-csv').disabled=true;$('compare-one').disabled=false;$('compare-many').disabled=false;$('compare-status').textContent='';$('compare-status').classList.remove('error');document.body.classList.remove('busy');}
-function applyPreset(key){clearComparison();const presets={F:[[20,.3,.7],[20,.9,.7]],CR:[[20,.6,0],[20,.6,1]],NP:[[8,.6,.7],[40,.6,.7]]};presets[key].forEach((v,i)=>{const p=i?'b':'a';$(p+'-np').value=v[0];$(p+'-f').value=v[1];$(p+'-cr').value=v[2];});$('compare-budget').value=240;document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('active',b.dataset.preset===key));updateCompareBudget();}
-const yieldUI=()=>new Promise(resolve=>setTimeout(resolve,0));
-async function runComparison(many){let configs,count,seed;try{configs=compareConfigs();count=many?number('repetitions',2,100,true):1;seed=number('compare-seed',0,999999,true);}catch(e){$('compare-status').textContent=e.message;$('compare-status').classList.add('error');return;}
- clearComparison();const id=++state.batchId,problem=state.problem,rows=[],curves=[];$('compare-one').disabled=true;$('compare-many').disabled=true;document.body.classList.add('busy');
- try{for(let k=0;k<count;k++){if(id!==state.batchId)return;const pair=[];for(let j=0;j<2;j++){const run=Engine.runToEnd(Engine.createRun(problem,{...configs[j],seed:seed+k}));pair.push(Engine.summarize(run));if(k===0)curves.push(run.trace);}rows.push({seed:seed+k,a:pair[0],b:pair[1]});$('compare-status').textContent=`Comparando ${k+1} de ${count} semillas…`;if(k%3===0)await yieldUI();}
- if(id!==state.batchId)return;state.comparison={problemId:problem.id,configs,rows,curves,count,seed,budget:configs[0].budget,created:new Date().toISOString()};$('compare-status').textContent=`${count} semilla${count===1?'':'s'} comparada${count===1?'':'s'}.`;$('export-csv').disabled=false;renderComparison();
- }catch(e){$('compare-status').textContent=e.message;$('compare-status').classList.add('error');}finally{if(id===state.batchId){$('compare-one').disabled=false;$('compare-many').disabled=false;document.body.classList.remove('busy');}}
-}
-function quantile(values,q){const s=[...values].sort((a,b)=>a-b),p=(s.length-1)*q,i=Math.floor(p);return s[i]+(s[Math.min(i+1,s.length-1)]-s[i])*(p-i);}
-function summaryFor(key){const rs=state.comparison.rows.map(r=>r[key]),vals=rs.map(r=>r.best),gaps=rs.map(r=>r.gap);return {runs:rs,median:quantile(vals,.5),q1:quantile(vals,.25),q3:quantile(vals,.75),medianGap:quantile(gaps,.5),min:Math.min(...vals),max:Math.max(...vals),success:rs.filter(r=>r.success).length,diversity:quantile(rs.map(r=>r.diversity*100),.5),unique:quantile(rs.map(r=>r.uniqueVisited),.5),evals:rs[0].evaluations,generations:rs[0].generations};}
-function renderComparison(){const c=state.comparison;if(!c)return;const a=summaryFor('a'),b=summaryFor('b');let aw=0,bw=0,ties=0;c.rows.forEach(r=>{const d=r.a.best-r.b.best;if(Math.abs(d)<=state.problem.successTolerance)ties++;else if(d<0)aw++;else bw++;});
- $('comparison-config-summary').textContent=`${state.problem.name} · A: NP=${c.configs[0].np}, F=${c.configs[0].F}, CR=${c.configs[0].CR} · B: NP=${c.configs[1].np}, F=${c.configs[1].F}, CR=${c.configs[1].CR} · Límite ${c.budget} · Semillas ${c.seed}–${c.seed+c.count-1}`;
- const intro=c.count===1?'Una semilla muestra un ejemplo, no un efecto general.':`En ${c.count} semillas, la mediana final fue <strong>${money(a.median)}</strong> para A y <strong>${money(b.median)}</strong> para B.`;
- $('comparison-summary').innerHTML=`${intro} A terminó mejor en <strong>${aw}</strong> pares, B en <strong>${bw}</strong> y hubo <strong>${ties}</strong> empates prácticos.${a.evals!==b.evals?` Las evaluaciones efectivas difieren: A usó ${a.evals} y B ${b.evals}, por el cierre de generaciones completas.`:''}`;
- const rows=[['Costo / valor final · mediana',money(a.median),money(b.median)],['50% central · Q1 a Q3',`${money(a.q1)} a ${money(a.q3)}`,`${money(b.q1)} a ${money(b.q3)}`],['Mejor a peor resultado',`${money(a.min)} a ${money(a.max)}`,`${money(b.min)} a ${money(b.max)}`],['Corridas que alcanzan la referencia',`${a.success}/${c.count} (${fmt(a.success/c.count*100,1)}%)`,`${b.success}/${c.count} (${fmt(b.success/c.count*100,1)}%)`],['Brecha absoluta · mediana',precise(a.medianGap),precise(b.medianGap)],['Evaluaciones por corrida',fmt(a.evals),fmt(b.evals)],['Generaciones por corrida',fmt(a.generations),fmt(b.generations)],['Diversidad final · mediana',fmt(a.diversity,2)+'%',fmt(b.diversity,2)+'%'],['Diseños distintos visitados · mediana',fmt(a.unique,1),fmt(b.unique,1)]];
- $('results-table').querySelector('tbody').innerHTML=rows.map(r=>`<tr><th scope="row">${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
- $('success-definition').textContent=(state.problem.id==='solar'?'Éxito: alcanzar el menor costo de la tabla solar (tolerancia numérica 10⁻⁸).':`Éxito: brecha absoluta ≤ ${precise(state.problem.successTolerance)} respecto al mínimo de referencia.`)+` Semillas ${c.seed} a ${c.seed+c.count-1}. Q1–Q3 describe el 50% central, no un intervalo de confianza. Empate práctico: diferencia de valor final ≤ ${precise(state.problem.successTolerance)}, la tolerancia de este caso.`;
- $('compare-empty').hidden=true;$('compare-results').hidden=false;rememberComparison();requestAnimationFrame(renderComparisonCharts);
-}
-function renderComparisonCharts(){const c=state.comparison;if(!c)return;drawCurves('comparison-curve',c.curves.map((trace,i)=>({trace,color:i?colors.b:colors.a})),c.budget,true);drawPaired();}
-function drawPaired(){const s=prepareCanvas('paired-chart');if(!s)return;const c=state.comparison,{ctx,w,h}=s,m={l:61,r:18,t:22,b:39},pw=w-m.l-m.r,ph=h-m.t-m.b,values=c.rows.flatMap(r=>[absoluteGap(r.a.best),absoluteGap(r.b.best)]),largest=Math.max(0,...values),max=largest>0?largest*1.1:1;const y=v=>m.t+ph-Math.log1p(v)/Math.log1p(max)*ph,x=i=>m.l+(c.count===1?.5:(i+.5)/c.count)*pw;ctx.font='10px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial';ctx.textAlign='right';ctx.fillStyle=colors.muted;let lastY=Infinity;for(const tick of plotTicks(max,true)){const yy=y(tick);if(Math.abs(yy-lastY)<21&&tick!==0)continue;lastY=yy;ctx.strokeStyle=colors.grid;ctx.beginPath();ctx.moveTo(m.l,yy);ctx.lineTo(w-m.r,yy);ctx.stroke();ctx.fillText(axisNumber(tick),m.l-7,yy+3);}c.rows.forEach((r,i)=>{const yy=[y(absoluteGap(r.a.best)),y(absoluteGap(r.b.best))],xx=x(i);ctx.strokeStyle='#a6b5ad';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx-2,yy[0]);ctx.lineTo(xx+2,yy[1]);ctx.stroke();ctx.beginPath();ctx.arc(xx-2,yy[0],3.5,0,Math.PI*2);ctx.fillStyle=colors.a;ctx.fill();ctx.fillStyle=colors.b;ctx.fillRect(xx-1.5,yy[1]-3.5,7,7);});ctx.textAlign='center';const indices=[...new Set([0,Math.floor((c.count-1)/2),c.count-1])];indices.forEach(i=>ctx.fillText(String(c.rows[i].seed),x(i),h-23));ctx.fillText('Semilla · A círculo, B cuadrado',m.l+pw/2,h-6);ctx.textAlign='left';ctx.fillText('Brecha absoluta · '+gapUnit(),m.l,12);}
-function download(name,text,mime){
- $('export-title').textContent=name;$('export-content').value=text;$('export-preview').hidden=false;
- $('export-explanation').textContent='Se solicitó la descarga. Si tu visor no la permite, selecciona el contenido y cópialo a un archivo de texto con el nombre indicado.';
- try{const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(e){$('export-explanation').textContent='Este visor no permite la descarga directa. El contenido completo está disponible aquí para seleccionarlo y copiarlo.';}
- $('export-preview').scrollIntoView({block:'nearest'});
-}
-function exportCSV(){const c=state.comparison;if(!c)return;const lines=[['caso','semilla','configuracion','NP','F','CR','limite_evaluaciones','evaluaciones','generaciones','mejor_valor','brecha_absoluta','exito','diversidad_normalizada','disenos_distintos','coordenada_1','coordenada_2']];c.rows.forEach(row=>['a','b'].forEach((key,i)=>{const r=row[key],conf=c.configs[i];lines.push([c.problemId,row.seed,key.toUpperCase(),conf.np,conf.F,conf.CR,c.budget,r.evaluations,r.generations,r.best,r.gap,r.success,r.diversity,r.uniqueVisited,...r.decoded.coords]);}));download('comparacion_de_'+c.problemId+'.csv','\uFEFF'+lines.map(row=>row.join(',')).join('\r\n'),'text/csv;charset=utf-8');$('compare-status').textContent='CSV preparado para descargar.';}
-const noteFields=['hypothesis','evidence','conclusion'];
-let notesCase=null,notebooks={};
-try{const parsed=JSON.parse(localStorage.getItem('de-lab-sesion36-notebooks-v2')||'{}');if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))notebooks=parsed;}catch(e){}
-try{const old=JSON.parse(localStorage.getItem('de-lab-sesion36-notes')||'{}');if(noteFields.some(k=>typeof old?.[k]==='string'&&old[k].trim())){$('legacy-notes').hidden=false;$('legacy-content').textContent=noteFields.map(k=>k.toUpperCase()+'\n'+(typeof old[k]==='string'?old[k]:'')).join('\n\n');}}catch(e){}
-function persistNotes(){try{localStorage.setItem('de-lab-sesion36-notebooks-v2',JSON.stringify(notebooks));return true;}catch(e){return false;}}
-function loadNotes(id){notesCase=id;const saved=notebooks[id]||{};noteFields.forEach(k=>$(k).value=typeof saved[k]==='string'?saved[k]:'');$('notes-case-label').textContent='Registro de: '+problems[id].name;$('notes-status').textContent='Las notas se conservan por caso.';}
-function saveNotes(notify=true){if(!notesCase)return;notebooks[notesCase]={...notebooks[notesCase],...Object.fromEntries(noteFields.map(k=>[k,$(k).value]))};const ok=persistNotes();if(notify)$('notes-status').textContent=ok?'Guardado para este caso en el navegador.':'Registro en memoria; descárgalo para conservarlo.';}
-function rememberComparison(){const c=state.comparison;if(!c)return;const description=c.configs.map((cfg,i)=>`${i?'B':'A'}: NP=${cfg.np}, F=${cfg.F}, CR=${cfg.CR}`).join('\n')+`\nLímite: ${c.budget} evaluaciones. Semillas: ${c.seed} a ${c.seed+c.count-1}.\n`+$('comparison-summary').textContent+'\n'+$('success-definition').textContent;notebooks[c.problemId]={...notebooks[c.problemId],experiment:description};persistNotes();}
-function downloadNotes(){saveNotes(false);const id=notesCase,entry=notebooks[id]||{};let content=`LABORATORIO DE EVOLUCIÓN DIFERENCIAL · v2\nCaso: ${problems[id].name}\n\nMI PREDICCIÓN\n${$('hypothesis').value}\n\nEVIDENCIA\n${$('evidence').value}\n\nCONCLUSIÓN Y LIMITACIÓN\n${$('conclusion').value}\n`;
- if(typeof entry.experiment==='string')content+='\nÚLTIMA COMPARACIÓN REALIZADA EN ESTE CASO\n'+entry.experiment+'\n';download('mi_experimento_de_'+id+'.txt',content,'text/plain;charset=utf-8');$('notes-status').textContent='Registro preparado; contenido disponible en el panel de exportación.';
-}
+"use strict";
+/* Laboratorio de Evolución Diferencial, sesión 36 · versión 3 (23-oct-2026): una sola vista, sin pestañas ni registros.
+ * El núcleo (sin DOM) se exporta para las pruebas de node; la interfaz solo corre en el navegador. El motor es engine.js (DE/rand/1/bin). */
+(function (root) {
+  const enNode = typeof module === "object" && module.exports;
+  const E = enNode ? require("./engine.js") : root.DELabEngine;
+  const MENOS = "−";
+  const SUB = "₀₁₂₃₄₅₆₇₈₉";
 
-$('context-toggle').addEventListener('click',()=>{const open=$('case-details').hidden;$('case-details').hidden=!open;$('context-toggle').setAttribute('aria-expanded',open);$('context-toggle').innerHTML=(open?'Ocultar modelo':'Ver el modelo')+' <span aria-hidden="true">'+(open?'−':'＋')+'</span>';});
-$('problem').addEventListener('change',setProblem);
-document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-document.querySelector('.tabs').setAttribute('role','tablist');document.querySelector('.tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=['explore','compare','activity'],i=tabs.indexOf(state.tab),next=e.key==='Home'?0:e.key==='End'?2:(i+(e.key==='ArrowRight'?1:2))%3;switchTab(tabs[next]);$('tab-'+tabs[next]).focus();});
-['np','factor','cr'].forEach(id=>$(id).addEventListener('input',()=>initRun('Parámetros modificados. Población inicial reiniciada.')));
-$('stop-mode').addEventListener('change',()=>initRun('Criterio de paro modificado. Población inicial reiniciada.'));['generations','budget','seed'].forEach(id=>$(id).addEventListener('input',()=>initRun('Configuración modificada. Población inicial reiniciada.')));
-$('reset-defaults').addEventListener('click',()=>{Object.entries({np:10,factor:.5,cr:.5,seed:0,generations:20,budget:840,'stop-mode':'generations'}).forEach(([k,v])=>$(k).value=v);initRun('Valores de clase restablecidos.');});
-$('play').addEventListener('click',togglePlay);$('step').addEventListener('click',()=>{pause();advance();});$('finish').addEventListener('click',()=>{pause();if(state.run){Engine.runToEnd(state.run);renderRun();}});$('restart').addEventListener('click',()=>initRun('Misma configuración y semilla. La población inicial se repite.'));$('compressed').addEventListener('change',renderRun);
-$('use-in-compare').addEventListener('click',()=>{try{const cfg=settings();clearComparison();$('a-np').value=cfg.np;$('a-f').value=cfg.F;$('a-cr').value=cfg.CR;$('compare-seed').value=cfg.seed;$('compare-budget').value=state.run.effectiveBudget;document.querySelectorAll('[data-preset]').forEach(b=>b.classList.remove('active'));updateCompareBudget();switchTab('compare');}catch(e){status(e.message,true);}});
-document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
-['a-np','a-f','a-cr','b-np','b-f','b-cr','compare-budget','compare-seed','repetitions'].forEach(id=>$(id).addEventListener('input',()=>{clearComparison();document.querySelectorAll('[data-preset]').forEach(b=>b.classList.remove('active'));updateCompareBudget();}));
-$('compare-one').addEventListener('click',()=>runComparison(false));$('compare-many').addEventListener('click',()=>runComparison(true));$('export-csv').addEventListener('click',exportCSV);
-noteFields.forEach(k=>$(k).addEventListener('input',()=>saveNotes()));$('download-notes').addEventListener('click',downloadNotes);$('close-export').addEventListener('click',()=>{$('export-preview').hidden=true;});$('export-select').addEventListener('click',()=>{$('export-content').focus();$('export-content').select();});['budget-short','budget-long'].forEach((id,i)=>$(id).addEventListener('click',()=>{clearComparison();$('compare-budget').value=i?840:240;updateCompareBudget();}));
-$('landscape').addEventListener('pointermove',e=>{if(!mapGeometry)return;const rect=$('landscape').getBoundingClientRect(),g=mapGeometry,x=e.clientX-rect.left,y=e.clientY-rect.top;if(x<g.l||y<g.t||x>g.l+g.pw||y>g.t+g.ph){$('map-tooltip').hidden=true;return;}const u=[(x-g.l)/g.pw,1-(y-g.t)/g.ph],d=state.problem.decode(u),tt=$('map-tooltip');tt.textContent=state.problem.id==='solar'?`${fmt(d.x,1)} kW, ${fmt(d.y,0)} kWh · ${money(d.cost)}/año`:`(${fmt(d.x,2)}, ${fmt(d.y,2)}) · f = ${fmt(d.cost,3)}`;tt.hidden=false;tt.style.left=Math.max(2,Math.min(x+12,rect.width-tt.offsetWidth-4))+'px';tt.style.top=Math.max(2,y-36)+'px';});$('landscape').addEventListener('pointerleave',()=>$('map-tooltip').hidden=true);
-let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(renderVisible,80);});document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('pagehide',pause);
-setProblem();switchTab('explore');$('startup-status').hidden=true;
-})();
+  // ------------------------------------------------------------------ núcleo
+  const DEF = {
+    terrain: { np: 6, F: 0.5, CR: 0.5, generations: 8, seed: 1 },
+    solar: { np: 10, F: 0.5, CR: 0.5, generations: 20, seed: 0 }
+  };
+  function num(x, dec) { const s = Number(x).toFixed(dec); return s.startsWith("-") && Number(s) !== 0 ? MENOS + s.slice(1) : s.replace(/^-/, ""); }
+  function sub(n) { return String(n).replace(/\d/g, (d) => SUB[Number(d)]); }
+  function kw(v) { return Number.isInteger(v) ? String(v) : num(v, 1); }
+  function crearProblemas(data) { return { terrain: E.createTerrainProblem(), solar: E.createSolarProblem(data) }; }
+  function nuevaCorrida(problema, cfg) {
+    return E.createRun(problema, { np: cfg.np, F: cfg.F, CR: cfg.CR, seed: cfg.seed, generations: cfg.generations, budgetMode: "generations" });
+  }
+  function punto(problema, u) {
+    const d = problema.decode(u);
+    return problema.id === "solar" ? `(${kw(d.P_kW)} kW, ${kw(d.E_kWh)} kWh)` : `(${num(d.x, 2)}, ${num(d.y, 2)})`;
+  }
+  function valor(problema, v) { return problema.id === "solar" ? `${num(v, 1)} USD/año` : num(v, 2); }
+  function evaluaciones(cfg) { return cfg.np * (cfg.generations + 1); }
+  function costoTexto(problema, cfg) {
+    const n = evaluaciones(cfg);
+    const base = `Cada corrida evalúa f NP × (generaciones + 1) = ${cfg.np} × ${cfg.generations + 1} = ${n} veces`;
+    return problema.id === "solar" ? `${base}: ${n} simulaciones, frente a las 1271 de recorrer toda la malla.` : `${base}.`;
+  }
+  // El paso del explorador 1 (índice 0) en la última generación, dicho con las tres reglas de la clase
+  function explicaPaso(problema, t, cfg) {
+    if (!t) return null;
+    const [a, b, c] = t.r.map((k) => k + 1);
+    const mut = `Se sortearon los exploradores ${a}, ${b} y ${c}: v = x${sub(a)} + F (x${sub(b)} ${MENOS} x${sub(c)}) = ${punto(problema, t.mutant)}` +
+      (t.clipped ? ", recortado al dominio." : ".");
+    const origen = t.crossMask.map((m, j) => `la ${j + 1} de ${m ? "v" : "x₁"}${j === t.jrand ? " (es la j<sub>rand</sub>)" : ""}`);
+    const cruza = `Sorteos ${t.crossRand.map((r) => num(r, 2)).join(" y ")} contra CR = ${num(cfg.CR, 2)}; la j<sub>rand</sub> es la coordenada ${t.jrand + 1}. ` +
+      `u = ${punto(problema, t.trial)}: ${origen.join(" y ")}.`;
+    const sel = t.accepted
+      ? `f(u) = ${valor(problema, t.trialCost)} ≤ f(x₁) = ${valor(problema, t.targetCost)}: el explorador 1 se mueve a u.`
+      : `f(u) = ${valor(problema, t.trialCost)} > f(x₁) = ${valor(problema, t.targetCost)}: el explorador 1 se queda donde estaba.`;
+    return { mutacion: mut, cruza, seleccion: sel };
+  }
+  // La frontera entre las regiones de atracción del cerro: el máximo local de g(t) = t⁴ − 4t² + t, raíz de 4t³ − 8t + 1 entre −0.8 y 0.8 (≈ 0.126).
+  const FRONTERA = (() => { let a = -0.8, b = 0.8; const d = (x) => 4 * x ** 3 - 8 * x + 1; for (let k = 0; k < 80; k++) { const m = (a + b) / 2; if (d(a) * d(m) <= 0) b = m; else a = m; } return (a + b) / 2; })();
+  // Éxito: en el cerro, que el mejor termine en la región de atracción del mínimo global (como en la clase); en el caso solar, que sea el diseño más barato.
+  function llega(problema, run) {
+    if (problema.id === "terrain") { const d = problema.decode(run.bestPoint); return d.x < FRONTERA && d.y < FRONTERA; }
+    return E.summarize(run).success;
+  }
+  function treintaSemillas(problema, cfg) {
+    const mejores = []; let exitos = 0;
+    for (let s = 0; s < 30; s++) {
+      const run = nuevaCorrida(problema, Object.assign({}, cfg, { seed: s }));
+      E.runToEnd(run);
+      if (llega(problema, run)) exitos += 1;
+      mejores.push(run.best);
+    }
+    const orden = mejores.slice().sort((x, y) => x - y);
+    return { exitos, total: 30, mediana: (orden[14] + orden[15]) / 2, evaluaciones: evaluaciones(cfg) };
+  }
+  function treintaTexto(problema, cfg, r) {
+    const criterio = problema.id === "solar" ? "el mejor fue el diseño más barato de la malla" : "el mejor terminó en la región de atracción del mínimo global";
+    return `Con NP = ${cfg.np}, F = ${num(cfg.F, 2)}, CR = ${num(cfg.CR, 2)} y ${cfg.generations} generaciones: en ${r.exitos} de 30 semillas ${criterio}. ` +
+      `Cada corrida gastó ${r.evaluaciones} evaluaciones de f.`;
+  }
+  const Nucleo = { DEF, FRONTERA, llega, num, sub, crearProblemas, nuevaCorrida, punto, valor, evaluaciones, costoTexto, explicaPaso, treintaSemillas, treintaTexto };
+  if (enNode) { module.exports = Nucleo; return; }
+
+  // ------------------------------------------------------------------ interfaz
+  const $ = (id) => document.getElementById(id);
+  const P = crearProblemas(JSON.parse($("solar-data").textContent));
+  const estado = { id: "terrain", cfg: { terrain: Object.assign({}, DEF.terrain), solar: Object.assign({}, DEF.solar) }, run: null, timer: null, fondo: {} };
+  const COLORES = ["#0F3A47", "#2C6577", "#6F9CA8", "#B9CFCF", "#F6EBD6"];
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const STOPS = COLORES.map(hex);
+  function color(t) {
+    t = Math.min(1, Math.max(0, t));
+    const x = t * (STOPS.length - 1), i = Math.min(STOPS.length - 2, Math.floor(x)), f = x - i;
+    return STOPS[i].map((c, k) => Math.round(c + f * (STOPS[i + 1][k] - c)));
+  }
+  const problema = () => P[estado.id];
+  const cfg = () => estado.cfg[estado.id];
+
+  // fondo del mapa, calculado una vez por problema
+  function fondo(pr) {
+    if (estado.fondo[pr.id]) return estado.fondo[pr.id];
+    const c = document.createElement("canvas");
+    let nx, ny, val;
+    if (pr.id === "solar") {
+      nx = pr.gridSize[0]; ny = pr.gridSize[1];
+      const [lo, hi] = pr.costRange;
+      // ocho bandas en escala logarítmica, como el mapa de la clase
+      val = (i, j) => Math.min(7, Math.floor(8 * Math.pow(Math.log(pr.costs[i][j] / lo) / Math.log(hi / lo), 0.7))) / 7;
+    } else {
+      nx = ny = 360;
+      // bandas de nivel cada 2 unidades de f, de −10 a 4, como el relieve en bandas de la clase
+      const niveles = [-10, -8, -6, -4, -2, 0, 2, 4];
+      val = (i, j) => { const v = pr.evaluate([(i + 0.5) / nx, (j + 0.5) / ny]); let k = 0; while (k < niveles.length && v > niveles[k]) k++; return k / niveles.length; };
+    }
+    c.width = nx; c.height = ny;
+    const g = c.getContext("2d"), img = g.createImageData(nx, ny);
+    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+      const k = ((ny - 1 - j) * nx + i) * 4, rgb = color(val(i, j));
+      img.data[k] = rgb[0]; img.data[k + 1] = rgb[1]; img.data[k + 2] = rgb[2]; img.data[k + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    estado.fondo[pr.id] = c;
+    return c;
+  }
+  function lienzo(cv, alto) {
+    const w = cv.clientWidth || cv.parentElement.clientWidth || 600, h = Math.round(alto(w)), r = window.devicePixelRatio || 1;
+    cv.width = Math.round(w * r); cv.height = Math.round(h * r); cv.style.height = h + "px";
+    const g = cv.getContext("2d"); g.setTransform(r, 0, 0, r, 0, 0);
+    return { g, w, h };
+  }
+  function flecha(g, a, b, colorTrazo, grosor) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy); if (L < 2) return;
+    const ux = dx / L, uy = dy / L, p = 8;
+    g.strokeStyle = colorTrazo; g.fillStyle = colorTrazo; g.lineWidth = grosor;
+    g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0] - ux * p * 0.8, b[1] - uy * p * 0.8); g.stroke();
+    g.beginPath(); g.moveTo(b[0], b[1]); g.lineTo(b[0] - ux * p - uy * p * 0.45, b[1] - uy * p + ux * p * 0.45);
+    g.lineTo(b[0] - ux * p + uy * p * 0.45, b[1] - uy * p - ux * p * 0.45); g.closePath(); g.fill();
+  }
+  function dibujaMapa() {
+    const pr = problema(), cv = $("mapa");
+    const { g, w, h } = lienzo(cv, (w) => pr.id === "solar" ? Math.min(w * 0.7, 400) : Math.min(w * 0.8, 440));
+    const m = { l: 40, r: 10, t: 8, b: 34 };
+    let W = w - m.l - m.r, H = h - m.t - m.b;
+    // el cerro va en un cuadrado (su dominio es [−2.2, 2.2]²), centrado
+    if (pr.id === "terrain") { const L = Math.min(W, H); m.l += (W - L) / 2; W = H = L; }
+    const X = (u) => [m.l + u[0] * W, m.t + (1 - u[1]) * H];
+    const vis = (u) => X(pr.project ? pr.project(u) : u);
+    g.clearRect(0, 0, w, h);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(fondo(pr), m.l, m.t, W, H);
+    g.strokeStyle = "#DAD7D0"; g.lineWidth = 1; g.strokeRect(m.l + 0.5, m.t + 0.5, W - 1, H - 1);
+    // ejes
+    g.fillStyle = "#5C6670"; g.font = "12px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "top";
+    const [bx, by] = pr.bounds;
+    const tx = pr.id === "solar" ? [0, 10, 20] : [-2, 0, 2], ty = pr.id === "solar" ? [0, 30, 60] : [-2, 0, 2];
+    tx.forEach((v) => g.fillText(num(v, 0), m.l + (v - bx[0]) / (bx[1] - bx[0]) * W, m.t + H + 4));
+    g.textAlign = "right"; g.textBaseline = "middle";
+    ty.forEach((v) => g.fillText(num(v, 0), m.l - 5, m.t + (1 - (v - by[0]) / (by[1] - by[0])) * H));
+    g.textAlign = "center"; g.textBaseline = "top";
+    g.fillText(pr.id === "solar" ? "paneles (kW)" : "x₁", m.l + W / 2, m.t + H + 18);
+    g.save(); g.translate(m.l - 29, m.t + H / 2); g.rotate(-Math.PI / 2); g.textBaseline = "middle";
+    g.fillText(pr.id === "solar" ? "batería (kWh)" : "x₂", 0, 0); g.restore();
+    // mínimo global
+    const o = vis(pr.optimum.point);
+    g.strokeStyle = "#212A30"; g.lineWidth = 2.2;
+    g.beginPath(); g.moveTo(o[0] - 6, o[1] - 6); g.lineTo(o[0] + 6, o[1] + 6); g.moveTo(o[0] + 6, o[1] - 6); g.lineTo(o[0] - 6, o[1] + 6); g.stroke();
+    const run = estado.run; if (!run) return;
+    // el paso del explorador 1: la flecha d (de r3 a r2), F d sobre r1 y el mutante
+    const t = run.lastTrial;
+    if (t) {
+      const [d1, d2, d3] = t.donorPoints.map(vis), v = vis(t.mutant);
+      // donde estaban los tres sorteados al empezar la generación (algunos ya se movieron): aros tenues
+      g.setLineDash([2, 2]); g.strokeStyle = "rgba(33,42,48,.6)"; g.lineWidth = 1.2;
+      [d1, d2, d3].forEach((p) => { g.beginPath(); g.arc(p[0], p[1], 5, 0, 2 * Math.PI); g.stroke(); });
+      g.setLineDash([]);
+      flecha(g, d3, d2, "rgba(33,42,48,.85)", 1.6);
+      flecha(g, d1, v, "#C4622D", 2.4);
+      if (t.accepted) { g.setLineDash([4, 3]); g.strokeStyle = "#C4622D"; g.lineWidth = 1.2; const a = vis(t.target); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(vis(t.trial)[0], vis(t.trial)[1]); g.stroke(); g.setLineDash([]); }
+      g.fillStyle = "#C4622D"; g.strokeStyle = "#fff"; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(v[0], v[1] - 6); g.lineTo(v[0] + 6, v[1]); g.lineTo(v[0], v[1] + 6); g.lineTo(v[0] - 6, v[1]); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = "#212A30"; g.font = "600 12px system-ui, sans-serif"; g.textAlign = "left"; g.textBaseline = "bottom";
+      [[d1, "r₁"], [d2, "r₂"], [d3, "r₃"]].forEach(([p, s]) => g.fillText(s, p[0] + 7, p[1] - 4));
+    }
+    // la población; el mejor en salvia; el explorador 1 con borde terracota, encima de todo
+    run.population.forEach((u, i) => {
+      if (i === 0) return;
+      const p = vis(u); g.beginPath(); g.arc(p[0], p[1], 5, 0, 2 * Math.PI);
+      const esMejor = i === run.bestIndex;
+      g.fillStyle = esMejor ? "#4E7A5A" : "#fff"; g.fill(); g.lineWidth = esMejor ? 1.5 : 2; g.strokeStyle = esMejor ? "#fff" : "#212A30"; g.stroke();
+    });
+    const p1 = vis(run.population[0]);
+    g.beginPath(); g.arc(p1[0], p1[1], 6, 0, 2 * Math.PI); g.fillStyle = run.bestIndex === 0 ? "#4E7A5A" : "#fff"; g.fill();
+    g.lineWidth = 2.6; g.strokeStyle = "#C4622D"; g.stroke();
+    g.fillStyle = "#B05512"; g.font = "600 12px system-ui, sans-serif"; g.textAlign = "left"; g.textBaseline = "top"; g.fillText("1", p1[0] + 7, p1[1] + 2);
+  }
+  function dibujaCurva() {
+    const pr = problema(), run = estado.run, cv = $("curva");
+    const { g, w, h } = lienzo(cv, (w) => Math.min(200, Math.max(150, w * 0.3)));
+    const m = { l: pr.id === "solar" ? 58 : 40, r: 12, t: 10, b: 30 }, W = w - m.l - m.r, H = h - m.t - m.b;
+    g.clearRect(0, 0, w, h);
+    if (!run) return;
+    const G = run.maxGenerations, tr = run.trace.map((x) => x.best), opt = pr.optimum.value;
+    const ys = tr.concat([opt]); let lo = Math.min(...ys), hi = Math.max(...ys); if (hi - lo < 1e-9) { hi = lo + 1; }
+    const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+    const X = (k) => m.l + (G === 0 ? 0 : k / G) * W, Y = (v) => m.t + (1 - (v - lo) / (hi - lo)) * H;
+    g.strokeStyle = "#DAD7D0"; g.lineWidth = 1; g.beginPath(); g.moveTo(m.l, m.t); g.lineTo(m.l, m.t + H); g.lineTo(m.l + W, m.t + H); g.stroke();
+    g.setLineDash([5, 4]); g.strokeStyle = "#4E7A5A"; g.beginPath(); g.moveTo(m.l, Y(opt)); g.lineTo(m.l + W, Y(opt)); g.stroke(); g.setLineDash([]);
+    g.fillStyle = "#4E7A5A"; g.font = "12px system-ui, sans-serif"; g.textAlign = "right"; g.textBaseline = "bottom";
+    g.fillText("mínimo global", m.l + W, Y(opt) - 3);
+    g.strokeStyle = "#0F4C5C"; g.lineWidth = 2; g.beginPath();
+    tr.forEach((v, k) => { if (k === 0) g.moveTo(X(k), Y(v)); else { g.lineTo(X(k), Y(tr[k - 1])); g.lineTo(X(k), Y(v)); } }); g.stroke();
+    g.fillStyle = "#0F4C5C"; tr.forEach((v, k) => { g.beginPath(); g.arc(X(k), Y(v), 2.5, 0, 2 * Math.PI); g.fill(); });
+    g.fillStyle = "#5C6670"; g.textAlign = "center"; g.textBaseline = "top";
+    [0, G].forEach((k) => g.fillText(String(k), X(k), m.t + H + 4)); g.fillText("generación", m.l + W / 2, m.t + H + 14);
+    g.textAlign = "right"; g.textBaseline = "middle";
+    [hi - pad, lo + pad].forEach((v) => g.fillText(pr.id === "solar" ? num(v, 0) : num(v, 1), m.l - 5, Y(v)));
+  }
+  function actualiza() {
+    const pr = problema(), c = cfg(), run = estado.run, s = E.summarize(run);
+    $("estado").textContent = `Generación ${run.generation} de ${run.maxGenerations} · ${run.evaluations} evaluaciones de f · mejor f = ${valor(pr, s.best)} en ${punto(pr, s.bestPoint)}`;
+    const e = explicaPaso(pr, run.lastTrial, c);
+    $("regla-mut").innerHTML = "<b>Mutación.</b> " + (e ? e.mutacion : "Avance una generación para verla.");
+    $("regla-cruza").innerHTML = "<b>Cruza.</b> " + (e ? e.cruza : "—");
+    $("regla-sel").innerHTML = "<b>Selección.</b> " + (e ? e.seleccion : "—");
+    $("paso").disabled = run.done; $("animar").disabled = run.done && !estado.timer;
+    if (run.done) { parar(); }
+    dibujaMapa(); dibujaCurva();
+  }
+  function parar() { if (estado.timer) { clearInterval(estado.timer); estado.timer = null; } $("animar").textContent = "Animar"; $("animar").disabled = estado.run && estado.run.done; }
+  function reinicia() {
+    parar();
+    estado.run = nuevaCorrida(problema(), cfg());
+    $("costo-corrida").textContent = costoTexto(problema(), cfg());
+    actualiza();
+  }
+  function leeControles() {
+    const c = cfg();
+    c.np = Math.max(4, Math.min(30, parseInt($("np").value, 10) || 6));
+    c.F = Number($("f").value); c.CR = Number($("cr").value);
+    c.generations = Math.max(1, Math.min(60, parseInt($("gen").value, 10) || 1));
+    c.seed = Math.max(0, Math.min(9999, parseInt($("semilla").value, 10) || 0));
+    $("np-val").textContent = c.np; $("f-val").textContent = num(c.F, 2); $("cr-val").textContent = num(c.CR, 2);
+  }
+  function ponControles() {
+    const c = cfg();
+    $("np").value = c.np; $("f").value = c.F; $("cr").value = c.CR; $("gen").value = c.generations; $("semilla").value = c.seed;
+    $("np-val").textContent = c.np; $("f-val").textContent = num(c.F, 2); $("cr-val").textContent = num(c.CR, 2);
+  }
+  function eligeProblema(id) {
+    estado.id = id;
+    document.querySelectorAll(".opcion").forEach((b) => { const on = b.dataset.problema === id; b.classList.toggle("activa", on); b.setAttribute("aria-checked", String(on)); });
+    $("descripcion-terrain").hidden = id !== "terrain"; $("descripcion-solar").hidden = id !== "solar";
+    $("resultado-30").textContent = ""; $("barra-30").hidden = true;
+    ponControles(); reinicia();
+  }
+  document.querySelectorAll(".opcion").forEach((b) => b.addEventListener("click", () => eligeProblema(b.dataset.problema)));
+  ["np", "f", "cr", "gen", "semilla"].forEach((id) => $(id).addEventListener("input", () => { leeControles(); $("resultado-30").textContent = ""; $("barra-30").hidden = true; reinicia(); }));
+  $("paso").addEventListener("click", () => { if (!estado.run.done) { E.stepGeneration(estado.run); actualiza(); } });
+  $("reiniciar").addEventListener("click", reinicia);
+  $("animar").addEventListener("click", () => {
+    if (estado.timer) { parar(); return; }
+    if (estado.run.done) return;
+    $("animar").textContent = "Pausa";
+    estado.timer = setInterval(() => { if (estado.run.done) { parar(); return; } E.stepGeneration(estado.run); actualiza(); }, 650);
+  });
+  $("treinta").addEventListener("click", () => {
+    const r = treintaSemillas(problema(), cfg());
+    $("resultado-30").textContent = treintaTexto(problema(), cfg(), r);
+    $("barra-30").hidden = false; $("barra-30-lleno").style.width = (100 * r.exitos / r.total) + "%";
+  });
+  let tRes = null; window.addEventListener("resize", () => { clearTimeout(tRes); tRes = setTimeout(() => { dibujaMapa(); dibujaCurva(); }, 120); });
+  eligeProblema("terrain");
+})(typeof globalThis !== "undefined" ? globalThis : this);
