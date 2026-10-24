@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Laboratorio de Evolución Diferencial · Sesión 36</title>
-<meta name="lab-version" content="3.0">
+<meta name="lab-version" content="3.1">
 <meta name="description" content="Laboratorio sencillo, sin conexión, para ver cómo se mueve una población con Evolución Diferencial (DE/rand/1/bin).">
 <style>/*__STYLES__*/</style>
 </head>
@@ -26,6 +26,10 @@
   </div>
   <p class="descripcion" id="descripcion-terrain">La función de prueba de la clase: <span class="formula">f(x₁, x₂) = g(x₁) + g(x₂), con g(t) = t⁴ − 4t² + t</span>, en [−2.2, 2.2]². Tiene cuatro mínimos locales; el más bajo, el mínimo global, está cerca de (−1.47, −1.47).</p>
   <p class="descripcion" id="descripcion-solar" hidden>El costo anual de los 1271 diseños de la clase: paneles de 0 a 20 kW cada 0.5 kW y batería de 0 a 60 kWh cada 2 kWh. El más barato es 10 kW y 28 kWh, con 3285.6 USD/año. Es un modelo sencillo con datos sintéticos; cada evaluación de f equivale a una simulación del año.</p>
+  <figure class="vista3d" id="vista3d" hidden>
+    <canvas id="costo3d" role="img" aria-label="El costo anual de los 1271 diseños como superficie en tres dimensiones, con el mínimo global marcado"></canvas>
+    <figcaption>El costo anual como superficie: cada cruce de la malla es un diseño y la altura es su costo. Arrastre la gráfica para girarla. <button type="button" id="vista-inicial" class="enlace">Vista inicial</button></figcaption>
+  </figure>
 </section>
 
 <section class="tarjeta" aria-labelledby="t-parametros">

@@ -1,13 +1,13 @@
-# Laboratorio de Evolución Diferencial · Sesión 36 · versión 3
+# Laboratorio de Evolución Diferencial · Sesión 36 · versión 3.1
 
 Abrir **laboratorio_evolucion_diferencial.html** en un navegador. El archivo trae la página, el algoritmo y los datos; funciona sin instalación,
-sin servidor y sin conexión. Publicado en https://lara-montano.github.io/laboratorio-evolucion-diferencial/ (el QR de la hoja y de la lámina 21).
+sin servidor y sin conexión. Publicado en https://lara-montano.github.io/laboratorio-evolucion-diferencial/ (el QR de la hoja y de la lámina 22).
 
 **Para explorar en casa: material opcional, sin entrega ni evaluación.** El ejercicio a mano de la clase se conserva; el laboratorio sirve para repasarlo.
 
 ## Qué tiene (una sola página)
 
-1. **El problema.** El cerro con cuatro mínimos locales, f(x₁, x₂) = g(x₁) + g(x₂) con g(t) = t⁴ − 4t² + t en [−2.2, 2.2]², o el caso solar (comunidad sin red): los 1271 diseños de la clase (paneles cada 0.5 kW, batería cada 2 kWh; el más barato, 10 kW y 28 kWh, 3285.6 USD/año).
+1. **El problema.** El cerro con cuatro mínimos locales, f(x₁, x₂) = g(x₁) + g(x₂) con g(t) = t⁴ − 4t² + t en [−2.2, 2.2]², o el caso solar (comunidad sin red): los 1271 diseños de la clase (paneles cada 0.5 kW, batería cada 2 kWh; el más barato, 10 kW y 28 kWh, 3285.6 USD/año). Con el caso solar aparece su costo como gráfica 3D (la de la lámina 7 de la clase: caja con retícula, ejes en kW, kWh y USD/año, cada cruce de la malla un diseño, el mínimo global marcado), que se gira arrastrándola; «Vista inicial» la regresa.
 2. **Los parámetros.** NP, F y CR, las generaciones y la semilla. Por omisión, el cerro como la animación de la clase (NP = 6, 8 generaciones) y el caso solar como su corrida (NP = 10, 20 generaciones).
 3. **La corrida.** «Una generación», «Animar» y «Reiniciar». El mapa muestra los exploradores, el mejor y el mínimo global; después de cada generación dibuja el paso del explorador 1 (los tres sorteados, la flecha d, F d y el mutante v) y lo explica con las tres reglas de la clase: mutación, cruza y selección. Debajo, el mejor f en cada generación.
 4. **Repetir con 30 semillas.** Cuenta en cuántas el mejor termina en la región de atracción del mínimo global (el cerro) o en el diseño más barato (el caso solar), con los mismos parámetros.
@@ -30,3 +30,12 @@ clase: el generador de números aleatorios es otro. La frontera de las regiones 
 
     node build.cjs                  # arma laboratorio_evolucion_diferencial.html y dist/index.html desde src/
     node --test tests/*.test.cjs    # pruebas del motor y del núcleo de la página
+
+## Versión 3.1 (24-oct-2026)
+
+A pedido del autor («esta función se puede graficar en 3D, ¿la puedes agregar tanto a la presentación como al html?», sobre la función objetivo del caso
+solar, con estilo «clásico con ejes»): la sección 1 muestra, con el caso solar, el costo anual como gráfica 3D en proyección ortográfica, con el mismo
+color por bandas del mapa. Arrastrar en horizontal gira la vista; con ratón, arrastrar en vertical cambia la elevación. El núcleo (`vista3d` en
+`src/app.js`) devuelve las 1200 celdas ordenadas de atrás hacia adelante, las caras de atrás, los ejes y el mínimo; dos pruebas nuevas lo cubren
+(orden, paredes según la cámara y que con la vista inicial ninguna parte de la superficie tapa el mínimo global). Pruebas: 28.
+

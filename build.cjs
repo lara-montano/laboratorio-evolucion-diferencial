@@ -8,4 +8,4 @@ scripts.forEach((s,i)=>s[1].includes('application/json')?JSON.parse(s[2]):new vm
 if(/<script[^>]+src=|<link[^>]+rel=["']stylesheet|@import\s|fetch\(/i.test(html))throw Error('Dependencia externa inesperada');
 fs.mkdirSync(path.join(root,'dist'),{recursive:true});
 for(const destination of [path.join(root,'dist','index.html'),path.join(root,'laboratorio_evolucion_diferencial.html')]){fs.writeFileSync(destination+'.tmp',html);fs.renameSync(destination+'.tmp',destination);}
-console.log('HTML autónomo v3 validado:',Buffer.byteLength(html),'bytes');
+console.log('HTML autónomo v3.1 validado:',Buffer.byteLength(html),'bytes');

@@ -55,3 +55,28 @@ test("repetir con 30 semillas: reproducible y con el criterio de la clase (regi�
   assert.ok(s.exitos > 0, "en el caso solar alguna corrida llega al diseño más barato");
   assert.match(N.treintaTexto(P.solar, N.DEF.solar, s), /de 30 semillas el mejor fue el diseño más barato de la malla/);
 });
+
+test("gráfica 3D del costo solar: 1200 celdas de atrás hacia adelante, las paredes de atrás según la cámara y el mínimo global de la malla", () => {
+  const V = N.vista3d(P.solar, N.VISTA.az, N.VISTA.el);
+  assert.equal(V.celdas.length, 40 * 30);
+  for (let k = 1; k < V.celdas.length; k++) assert.ok(V.celdas[k - 1].d <= V.celdas[k].d);
+  assert.ok(V.celdas.every((c) => c.banda >= 0 && c.banda <= 7 && c.q.length === 4 && c.q.flat().every(Number.isFinite)));
+  assert.deepEqual(V.paredes, { P: 0, E: 0 });                       // la cámara mira desde la esquina de 20 kW y 60 kWh
+  assert.deepEqual([V.minimo.P, V.minimo.E, V.minimo.costo], [10, 28, 3285.6]);
+  assert.ok(Math.max(...P.solar.costs.flat()) < N.ZMAX);
+  assert.deepEqual(N.vista3d(P.solar, N.VISTA.az + 180, N.VISTA.el).paredes, { P: 20, E: 60 });
+});
+
+test("gráfica 3D: con la vista inicial, ningún punto de la superficie tapa el mínimo global", () => {
+  // la línea de vista del mínimo hacia la cámara no pasa por debajo de la superficie (interpolación bilineal entre diseños, como se dibuja)
+  const pr = P.solar, C = pr.costs, a = N.VISTA.az * Math.PI / 180, e = N.VISTA.el * Math.PI / 180, CAJA = [1.0, 1.4, 0.68];
+  const W = [Math.cos(e) * Math.cos(a), Math.cos(e) * Math.sin(a), Math.sin(e)];
+  const f = (Pk, Ek) => { const i = Math.min(Math.floor(Pk / 0.5), 39), j = Math.min(Math.floor(Ek / 2), 29), s = Pk / 0.5 - i, t = Ek / 2 - j;
+    return (1 - s) * (1 - t) * C[i][j] + s * (1 - t) * C[i + 1][j] + (1 - s) * t * C[i][j + 1] + s * t * C[i + 1][j + 1]; };
+  const q0 = [10 / 20 * CAJA[0], 28 / 60 * CAJA[1], 3285.6 / N.ZMAX * CAJA[2]];
+  for (let k = 1; k <= 3000; k++) {
+    const t = k * 0.001, q = q0.map((v, n) => v + t * W[n]), Pk = q[0] / CAJA[0] * 20, Ek = q[1] / CAJA[1] * 60;
+    if (Pk < 0 || Pk > 20 || Ek < 0 || Ek > 60) break;
+    assert.ok(q[2] / CAJA[2] * N.ZMAX >= f(Pk, Ek) - 1e-6, `tapado en P = ${Pk.toFixed(2)}, E = ${Ek.toFixed(2)}`);
+  }
+});

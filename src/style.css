@@ -21,6 +21,11 @@ body { margin: 0; background: var(--fondo); color: var(--tinta);
   border-radius: 8px; font: inherit; cursor: pointer; text-align: left; }
 .opcion.activa { border-color: var(--petroleo); background: #E7F0F2; color: var(--petroleo); font-weight: 600; }
 .descripcion { color: var(--gris); }
+.vista3d { margin: 10px 0 0; }
+.vista3d canvas { width: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.vista3d canvas:active { cursor: grabbing; }
+.vista3d figcaption { color: var(--gris); font-size: .9rem; margin-top: 4px; }
+.enlace { font: inherit; background: none; border: none; padding: 0; color: var(--petroleo); text-decoration: underline; cursor: pointer; }
 .formula { color: var(--tinta); white-space: nowrap; }
 .controles { display: grid; gap: 12px; }
 .control { display: grid; gap: 4px; }
